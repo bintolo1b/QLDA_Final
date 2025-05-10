@@ -1,5 +1,3 @@
-identity
-
 identity_1
 
 __pycache__
@@ -15,6 +13,4 @@ yolo_dataset_v2
 model
 
 real_fake_dataset
-
-student_images
 
