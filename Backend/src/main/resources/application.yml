@@ -1,0 +1,30 @@
+server:
+  port: 7070
+  ssl:
+    enabled: true
+    key-store: classpath:autoatt_ssl.p12
+    key-store-password: Trantai25022004
+    key-password: Trantai25022004
+    key-store-type: PKCS12  
+    key-alias: autoatt_ssl
+
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/qlda_autoattendance?createDatabaseIfNotExist=true"
+    username: root
+    password: Trantai25022004
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+#    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+#    database: mysql
+  app:
+    jwtSecret: mySecretkey1231738qwfqwfqowuhfnoqwuhfqwoifnjqwipfjpi
+    accessTokenExpirationMs: 3600000
+    refreshTokenExpirationMs: 604800000
+
