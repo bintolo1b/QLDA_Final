@@ -94,6 +94,7 @@ function LoginPage() {
         setShowPassword(!showPassword);
     };
 
+   
     return (
         <Box
             sx={{
@@ -168,6 +169,7 @@ function LoginPage() {
                                     '& .MuiAlert-icon': {
                                         alignItems: 'center'
                                     }
+                                    
                                 }}
                             >
                                 {error}
@@ -236,7 +238,7 @@ function LoginPage() {
                                 sx={{
                                     mb: 1,
                                     '& .MuiOutlinedInput-root': {
-                                        borderRadius: 1.5
+                                        borderRadius: 1.6
                                     }
                                 }}
                             />
