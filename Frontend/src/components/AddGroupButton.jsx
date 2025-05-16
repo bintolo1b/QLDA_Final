@@ -131,21 +131,21 @@ function AddGroupButton({ onClassAdded }) {
                 color="primary" 
                 onClick={handleOpen}
                 sx={{
-                    backgroundColor: '#1976d2',
+                    backgroundColor: '#2196f3',
                     color: 'white',
                     borderRadius: '50%',
                     '&:hover': {
-                        backgroundColor: '#1565c0',
-                        transform: 'scale(1.05)',
-                        boxShadow: '0 6px 10px rgba(0, 0, 0, 0.3)'
+                        backgroundColor: '#1976d2',
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 8px 15px rgba(33, 150, 243, 0.3)'
                     },
-                    width: '56px',
-                    height: '56px',
-                    boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                    transition: 'all 0.3s ease'
+                    width: '64px',
+                    height: '64px',
+                    boxShadow: '0 4px 8px rgba(33, 150, 243, 0.2)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
             >
-                <AddIcon />
+                <AddIcon sx={{ fontSize: 32 }} />
             </IconButton>
 
             <Dialog 
@@ -155,50 +155,59 @@ function AddGroupButton({ onClassAdded }) {
                 maxWidth="sm"
                 PaperProps={{
                     sx: {
-                        borderRadius: '12px',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+                        borderRadius: '16px',
+                        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.12)',
                         overflow: 'hidden'
                     }
                 }}
             >
                 <DialogTitle sx={{ 
-                    backgroundColor: '#f5f5f5', 
-                    padding: '16px 24px',
-                    fontWeight: 'bold',
-                    borderBottom: '1px solid #e0e0e0'
+                    backgroundColor: '#2196f3',
+                    color: 'white',
+                    padding: '20px 24px',
+                    fontSize: '1.5rem',
+                    fontWeight: '600',
                 }}>
                     Thêm lớp học mới
                 </DialogTitle>
-                <DialogContent sx={{ padding: '24px' }}>
+                <DialogContent sx={{ padding: '32px 24px' }}>
                     {errorMessage && (
-                        <Alert severity="error" sx={{ mb: 2 }}>
+                        <Alert 
+                            severity="error" 
+                            sx={{ 
+                                mb: 3,
+                                borderRadius: '8px',
+                                boxShadow: '0 2px 8px rgba(211, 47, 47, 0.1)'
+                            }}
+                        >
                             {errorMessage}
                         </Alert>
                     )}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+                    <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <TextField
                             label="Tên lớp học"
                             fullWidth
                             value={className}
                             onChange={(e) => setClassName(e.target.value)}
-                            margin="normal"
                             variant="outlined"
                             sx={{
                                 '& .MuiOutlinedInput-root': {
+                                    borderRadius: '12px',
                                     '&:hover fieldset': {
-                                        borderColor: '#1976d2',
+                                        borderColor: '#2196f3',
                                     },
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#1976d2',
+                                        borderColor: '#2196f3',
                                     },
                                 },
                             }}
                         />
                         
-                        <Typography variant="subtitle1" sx={{ 
-                            mt: 1, 
-                            fontWeight: 600,
-                            color: '#333'
+                        <Typography variant="h6" sx={{ 
+                            mt: 2, 
+                            mb: 1,
+                            fontWeight: '600',
+                            color: '#1976d2'
                         }}>
                             Lịch học trong tuần
                         </Typography>
@@ -206,7 +215,7 @@ function AddGroupButton({ onClassAdded }) {
                             <FormGroup sx={{ 
                                 display: 'flex', 
                                 flexDirection: 'column',
-                                gap: '16px',
+                                gap: '20px',
                             }}>
                                 {Object.entries({
                                     monday: "Thứ 2",
@@ -218,15 +227,32 @@ function AddGroupButton({ onClassAdded }) {
                                     sunday: "Chủ nhật"
                                 }).map(([day, label]) => (
                                     <Box key={day} sx={{ 
-                                        border: '1px solid #e0e0e0', 
-                                        borderRadius: '8px',
-                                        padding: '12px',
-                                        '&:hover': { backgroundColor: '#f5f5f5' }
+                                        border: '2px solid #e3f2fd',
+                                        borderRadius: '12px',
+                                        padding: '16px',
+                                        backgroundColor: selectedDays[day] ? '#e3f2fd' : 'white',
+                                        transition: 'all 0.3s ease',
+                                        '&:hover': { 
+                                            backgroundColor: '#e3f2fd',
+                                            transform: 'translateY(-2px)',
+                                            boxShadow: '0 4px 12px rgba(33, 150, 243, 0.1)'
+                                        }
                                     }}>
                                         <FormControlLabel
-                                            control={<Checkbox checked={selectedDays[day]} onChange={handleDayChange} name={day} color="primary" />}
-                                            label={label}
-                                            sx={{ marginBottom: '8px' }}
+                                            control={
+                                                <Checkbox 
+                                                    checked={selectedDays[day]} 
+                                                    onChange={handleDayChange} 
+                                                    name={day} 
+                                                    sx={{
+                                                        color: '#2196f3',
+                                                        '&.Mui-checked': {
+                                                            color: '#2196f3',
+                                                        }
+                                                    }}
+                                                />
+                                            }
+                                            label={<Typography sx={{ fontWeight: 500 }}>{label}</Typography>}
                                         />
                                         {selectedDays[day] && (
                                             <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -239,9 +265,19 @@ function AddGroupButton({ onClassAdded }) {
                                                         InputLabelProps={{ shrink: true }}
                                                         fullWidth
                                                         size="small"
-                                                        inputProps={{
-                                                            step: 300
+                                                        sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                borderRadius: '8px',
+                                                                color: 'black !important'
+                                                            },
+                                                            '& .MuiInputBase-input': {
+                                                                color: 'black'
+                                                            },
+                                                            '& .MuiSvgIcon-root': {
+                                                                color: 'black'
+                                                            }
                                                         }}
+                                                        inputProps={{ step: 300 }}
                                                     />
                                                 </Grid>
                                                 <Grid item xs={6}>
@@ -253,9 +289,18 @@ function AddGroupButton({ onClassAdded }) {
                                                         InputLabelProps={{ shrink: true }}
                                                         fullWidth
                                                         size="small"
-                                                        inputProps={{
-                                                            step: 300
+                                                        sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                borderRadius: '8px'
+                                                            },
+                                                            '& .MuiInputBase-input': {
+                                                                color: 'black'
+                                                            },
+                                                            '& .MuiSvgIcon-root': {
+                                                                color: 'black'
+                                                            }
                                                         }}
+                                                        inputProps={{ step: 300 }}
                                                     />
                                                 </Grid>
                                             </Grid>
@@ -271,16 +316,16 @@ function AddGroupButton({ onClassAdded }) {
                             fullWidth
                             value={weekCount}
                             onChange={(e) => setWeekCount(e.target.value)}
-                            margin="normal"
                             inputProps={{ min: 1 }}
-                            variant="outlined"
                             sx={{
+                                mt: 2,
                                 '& .MuiOutlinedInput-root': {
+                                    borderRadius: '12px',
                                     '&:hover fieldset': {
-                                        borderColor: '#1976d2',
+                                        borderColor: '#2196f3',
                                     },
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#1976d2',
+                                        borderColor: '#2196f3',
                                     },
                                 },
                             }}
@@ -288,17 +333,19 @@ function AddGroupButton({ onClassAdded }) {
                     </Box>
                 </DialogContent>
                 <DialogActions sx={{ 
-                    padding: '16px 24px',
-                    borderTop: '1px solid #e0e0e0',
-                    backgroundColor: '#f5f5f5'
+                    padding: '20px 24px',
+                    backgroundColor: '#f8f9fa',
+                    borderTop: '1px solid #e9ecef'
                 }}>
                     <Button 
                         onClick={handleClose}
                         sx={{
-                            color: '#666',
-                            fontWeight: 'bold',
+                            color: '#6c757d',
+                            fontWeight: '600',
+                            borderRadius: '8px',
+                            padding: '8px 20px',
                             '&:hover': {
-                                backgroundColor: '#e0e0e0'
+                                backgroundColor: '#e9ecef'
                             }
                         }}
                     >
@@ -307,15 +354,16 @@ function AddGroupButton({ onClassAdded }) {
                     <Button 
                         onClick={handleSubmit} 
                         variant="contained" 
-                        color="primary"
                         disabled={isSubmitting || !className || !weekCount || !Object.values(selectedDays).some(value => value)}
                         sx={{
-                            fontWeight: 'bold',
+                            backgroundColor: '#2196f3',
+                            fontWeight: '600',
                             borderRadius: '8px',
                             padding: '8px 24px',
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            boxShadow: '0 4px 12px rgba(33, 150, 243, 0.2)',
                             '&:hover': {
-                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                                backgroundColor: '#1976d2',
+                                boxShadow: '0 6px 16px rgba(33, 150, 243, 0.3)'
                             },
                             '&.Mui-disabled': {
                                 backgroundColor: '#e0e0e0',

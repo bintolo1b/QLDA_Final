@@ -148,7 +148,7 @@ public class ClassAPI {
         }
 
         List<Lesson> allLessons = lessonService.getLessonsByClassId(classId);
-        System.out.println(allLessons.size());
+
         if (allLessons.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
