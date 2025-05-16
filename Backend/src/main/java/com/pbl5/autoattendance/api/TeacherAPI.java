@@ -35,6 +35,7 @@ public class TeacherAPI {
     public ResponseEntity<?> updateTeacher(@Valid @RequestBody TeacherDTO teacherDTO){
         Map<String, String> map = new HashMap<>();
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
         Teacher teacher = teacherService.findTeacherByEmail(teacherDTO.getEmail());
         if (teacher != null && !teacher.getUser().getUsername().equals(username)){
             map.put("message", "Email is already exist");
@@ -49,6 +50,7 @@ public class TeacherAPI {
     @GetMapping("/{teacherId}")
     public ResponseEntity<TeacherDTO> getTeacherByClassId(@PathVariable("teacherId") Integer teacherId){
         Teacher teacher = teacherService.getTeacherById(teacherId);
+        System.out.println(teacher.getName());
         return new ResponseEntity<>(convertToTeacherDTO(teacher), HttpStatus.OK);
     }
 
