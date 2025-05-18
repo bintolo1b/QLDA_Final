@@ -107,7 +107,7 @@ public class ClassAPI {
             errors.put("message", "Teacher not found");
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
-
+        System.out.println("test create");
         // Kiểm tra thời gian bắt đầu và kết thúc của từng buổi học
         try {
             for (LessonTimeRangeDTO lessonTime : classWithLessonDTO.getSchedule().values()) {
