@@ -86,7 +86,7 @@ function FindGroupButton() {
       setTimeout(() => {
         handleClose();
         window.location.reload(); // Tải lại trang để cập nhật danh sách lớp học
-      }, 2000);
+      }, 2100);
     } catch (error) {
       console.error('Lỗi khi tham gia lớp học:', error);
       setError(error.message);
@@ -155,17 +155,24 @@ function FindGroupButton() {
           )}
 
           {classInfo && (
-            <Box sx={{ mt: 3, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-              <Typography variant="h6" gutterBottom>
+            <Box sx={{ 
+              mt: 3, 
+              p: 3,
+              border: '1px solid #e0e0e0', 
+              borderRadius: 2,
+              backgroundColor: '#f5f5f5',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', fontWeight: 'bold' }}>
                 Thông tin lớp học
               </Typography>
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ mb: 1 }}>
                 <strong>Mã lớp:</strong> {classInfo.id}
               </Typography>
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ mb: 1 }}>
                 <strong>Tên lớp:</strong> {classInfo.name}
               </Typography>
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ mb: 1 }}>
                 <strong>Số tuần học:</strong> {classInfo.numberOfWeeks}
               </Typography>
               <Typography variant="body1">
