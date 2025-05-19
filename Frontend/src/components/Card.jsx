@@ -39,7 +39,11 @@ function Card({groupTeamName, classId}) {
         sx: { 
           bgcolor: avatarData.color,
           width: 72,
-          height: 72
+          height: 72,
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'scale(1.05)',
+          }
         },
         children: avatarData.initials
       };
@@ -54,10 +58,10 @@ function Card({groupTeamName, classId}) {
                     width: "350px",
                     height: "auto",
                     backgroundColor: "#fff",
-                    borderRadius: "3px",
+                    borderRadius: "8px",
                     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.16)',
                     '&:hover':{
-                        backgroundColor: '#F5F5F5',
+                        backgroundColor: '#F8F9FA',
                         cursor: 'pointer'
                     },
                 }}
@@ -93,7 +97,10 @@ function Card({groupTeamName, classId}) {
                             WebkitLineClamp: "2",
                             WebkitBoxOrient: "vertical",
                             overflow: "hidden",
-                            textOverflow: "ellipsis"
+                            textOverflow: "ellipsis",
+                            fontWeight: "500",
+                            transition: "color 0.2s ease",
+                            color: "#333",
                         }}>
                             {groupTeamName || "Không có tên"}
                         </span>
