@@ -134,7 +134,9 @@ public class ClassAPI {
     public ResponseEntity<?> getClassById(@PathVariable Integer classId) {
         Class aclass = classService.getClassById(classId);
         if (aclass == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            Map<String, String> message = new HashMap<>();
+            message.put("message", "Class not found");
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
         ClassDTO classDTO = convertToDTO(aclass);
         return new ResponseEntity<>(classDTO, HttpStatus.OK);
