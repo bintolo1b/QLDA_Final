@@ -77,6 +77,11 @@ public class ClassAPI {
     public ResponseEntity<?> getAllClassesOfStudent(){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Student student = studentService.getStudentByUsername(username);
+
+        if (student == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         List<ClassDTO> classes = classService.getAllClasessOfStudent(student)
                 .stream()
                 .map(this::convertToDTO)
@@ -90,6 +95,11 @@ public class ClassAPI {
     public ResponseEntity<?> getAllClassesOfTeacher(){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Teacher teacher = teacherService.getTeacherByUsername(username);
+
+        if (teacher == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         List<ClassDTO> classes = classService.getAllClassesOfTeacher(teacher)
                 .stream()
                 .map(this::convertToDTO)
