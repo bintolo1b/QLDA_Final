@@ -35,42 +35,6 @@ results = ""
 def student_images(filename):
     return send_from_directory("student_images", filename)
 
-# Thêm route API để kiểm tra kết nối ESP32
-@app.route("/api/esp32/status", methods=["GET"])
-def esp32_status():
-    try:
-        # Gửi ping đến ESP32
-        test_msg = {"type": "ping", "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-        if send_to_esp32(test_msg):
-            return {"message": "Ping sent to ESP32", "status": "success"}
-        else:
-            return {"message": "Failed to send ping to ESP32", "status": "error"}
-    except Exception as e:
-        return {"message": f"Error checking ESP32 status: {e}", "status": "error"}
-
-# Thêm route để gửi thông báo đến ESP32 khi nhận diện thành công
-@app.route("/api/esp32/notify", methods=["POST"])
-def notify_esp32():
-    data = request.get_json()
-    message = data.get('message', 'Attendance recorded')
-    student_id = data.get('student_id')
-    lesson_id = data.get('lesson_id')
-    name = data.get('name', '')
-    
-    send_data = {
-        "student_id": student_id,
-        "lesson_id": lesson_id,
-        "name": name,
-        "message": message
-    }
-    
-    success = send_to_esp32(send_data)
-    
-    if success:
-        return {"message": "Notification sent to ESP32", "status": "success"}
-    else:
-        return {"message": "Failed to send notification to ESP32", "status": "error"}
-
 @app.route("/save_image", methods=["POST"])
 def save_image():
     label = request.form.get("label")
@@ -110,22 +74,10 @@ def identity_student():
         img_array = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
 
         print("Image shape:", img_array.shape)
-        # cv2.imshow("Image", img_array)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-
-        # print("Image shape:", img_array.shape)
 
         student_vectors = ServerUtils.fetch_student_vectors()
-        # print("Student vectors:", len(student_vectors.items()))
-        # print("Student vectors:", student_vectors.keys())
-        # print("Student vectors:", student_vectors)
-        # label, distance = ServerUtils.identify_student(
-        #     student_vectors, img_array, my_model.extractor_model
-        # )
-        
+
         my_model.set_identity_embedding(student_vectors)
-        # label, distance = my_model.query(img_array)[0][0], my_model.query(img_array)[0][2]
         identified_faces = my_model.query(img_array)
 
         label = None
@@ -159,12 +111,10 @@ def identity_student():
             }
 
             print(notification)
-            send_to_esp32(notification)
             return {"label": "Fake", "distance": distance, "status": "error"}
 
         if distance > 0.25:
             return {"label": "unknown", "distance": distance, "status": "success"}
-        
         
 
         # save image to file
@@ -176,8 +126,6 @@ def identity_student():
 
         studentId = label
 
-
-        
         student = ServerUtils.get_student_by_id(student_id=studentId)
         if not student:
             print("Student not found")
@@ -213,7 +161,6 @@ def identity_student():
         print("Lesson ID:", lessonId)
         print("Student ID:", studentId)
         
-        # Thông báo cho ESP32
         notification = {
             "student_id": studentId,
             "lesson_id": lessonId,
@@ -222,7 +169,6 @@ def identity_student():
         }
 
         print(notification)
-        send_to_esp32(notification)
 
         return {"label": label, "distance": distance, "lessonId": lessonId, "status": "success"}
     except Exception as e:

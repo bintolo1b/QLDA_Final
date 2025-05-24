@@ -7,9 +7,6 @@ import requests
 from utils.server_utils import ServerUtils
 
 my_model = FaceIDModel("model/detection_model.pt", "identity")
-# esp32_url = "http://192.168.55.235:81/stream"
-# esp32_url = "http://192.168.1.6:81/stream"
-# esp32_url = "http://192.168.180.235:81/stream"
 vs = VideoStream(src=1).start()
 time.sleep(2.0)
 
