@@ -77,6 +77,11 @@ public class ClassAPI {
     public ResponseEntity<?> getAllClassesOfStudent(){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Student student = studentService.getStudentByUsername(username);
+
+        if (student == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         List<ClassDTO> classes = classService.getAllClasessOfStudent(student)
                 .stream()
                 .map(this::convertToDTO)
@@ -90,6 +95,11 @@ public class ClassAPI {
     public ResponseEntity<?> getAllClassesOfTeacher(){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Teacher teacher = teacherService.getTeacherByUsername(username);
+
+        if (teacher == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         List<ClassDTO> classes = classService.getAllClassesOfTeacher(teacher)
                 .stream()
                 .map(this::convertToDTO)
@@ -107,7 +117,7 @@ public class ClassAPI {
             errors.put("message", "Teacher not found");
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
-
+        System.out.println("test create");
         // Kiểm tra thời gian bắt đầu và kết thúc của từng buổi học
         try {
             for (LessonTimeRangeDTO lessonTime : classWithLessonDTO.getSchedule().values()) {
@@ -134,7 +144,9 @@ public class ClassAPI {
     public ResponseEntity<?> getClassById(@PathVariable Integer classId) {
         Class aclass = classService.getClassById(classId);
         if (aclass == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            Map<String, String> message = new HashMap<>();
+            message.put("message", "Class not found");
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
         ClassDTO classDTO = convertToDTO(aclass);
         return new ResponseEntity<>(classDTO, HttpStatus.OK);

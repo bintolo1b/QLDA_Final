@@ -35,27 +35,27 @@ public class StudentClassAPI {
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/join/{classId}")
     public ResponseEntity<?> joinClass(@PathVariable Integer classId) {
+        System.out.println("join class");
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Student student = studentService.getStudentByUsername(username);
         Class aclass = classService.getClassById(classId);
-        if (aclass == null)
+        if (aclass == null) {
             return new ResponseEntity<>("Class not found", HttpStatus.NOT_FOUND);
+        }
 
-        if (studentClassService.checkScheduleConflict(student, aclass)){
+        if (studentClassService.checkScheduleConflict(student, aclass)) {
             Map<String, String> errors = new HashMap<>();
             errors.put("message", "Conflict with old class");
             return new ResponseEntity<>(errors, HttpStatus.CONFLICT);
         }
 
-
-        StudentClassId id = StudentClassId.builder().classId(aclass.getId()).studentId(student.getId()).build();
+        StudentClassId id = new StudentClassId(student.getId(), aclass.getId());
         StudentClass studentClass = StudentClass.builder()
                 .id(id)
                 .aClass(aclass)
                 .student(student)
                 .build();
         studentClassService.save(studentClass);
-
         attendanceCheckService.createAttendanceCheck(student, aclass);
 
         return new ResponseEntity<>(convertToStudentClassDTO(studentClass), HttpStatus.OK);

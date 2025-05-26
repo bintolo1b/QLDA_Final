@@ -86,7 +86,7 @@ function CalendarPage() {
           color: '#1976d2',
           textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
           margin: '24px 0'
-        }}>Class Calendarc</h2>
+        }}>Class Calendar</h2>
         
         {loading ? (
           <Box sx={{ textAlign: 'center', padding: '20px', color: '#1976d2' }}>Đang tải dữ liệu lịch học...</Box>
