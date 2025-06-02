@@ -11,6 +11,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class ClassWithLessonRepsonseDTO {
+    Integer classId;
     String name;
     Integer numberOfWeeks;
     private Map<String, @Valid LessonTimeRangeDTO> schedule;
