@@ -220,6 +220,38 @@ public class ClassAPI {
 
         return new ResponseEntity<>(classDTOs, HttpStatus.OK);
     }
+
+    @PatchMapping("/updateHiddenToTeacher/{classId}")
+    public ResponseEntity<?> updateClassHiddenStatus(@PathVariable Integer classId) {
+        Class aclass = classService.getClassById(classId);
+        if (aclass == null) {
+            return new ResponseEntity<>("Class not found", HttpStatus.NOT_FOUND);
+        }
+        aclass.setHideToTeacher(!aclass.isHideToTeacher());
+        classService.saveClass(aclass);
+        return new ResponseEntity<>(convertToDTO(aclass), HttpStatus.OK );
+    }
+
+    @GetMapping("/checkHiddenToTeacher/{classId}")
+    public ResponseEntity<?> checkClassHiddenStatus(@PathVariable Integer classId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Class aclass = classService.getClassById(classId);
+
+        if (aclass == null) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Class not found");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
+
+        if (!username.equals(aclass.getTeacher().getUser().getUsername())){
+            return new ResponseEntity<>("You are not the teacher of this class", HttpStatus.FORBIDDEN);
+        }
+
+
+        Map<String, String> response = new HashMap<>();
+        response.put("hide", aclass.isHideToTeacher()? "true" : "false");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
     
     private StudentDTO convertToStudentDTO(Student student) {
         StudentDTO dto = new StudentDTO();
@@ -239,6 +271,7 @@ public class ClassAPI {
         dto.setCreatedAt(classEntity.getCreatedAt());
         dto.setNumberOfWeeks(classEntity.getNumberOfWeeks());
         dto.setName(classEntity.getName());
+        dto.setHideToTeacher(classEntity.isHideToTeacher());
         if (classEntity.getTeacher() != null) {
             dto.setTeacherId(classEntity.getTeacher().getId());
         }

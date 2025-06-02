@@ -66,4 +66,16 @@ public class StudentClassService {
         // Kiểm tra xem hai khoảng thời gian có giao nhau không
         return !start1.isAfter(end2) && !start2.isAfter(end1);
     }
+
+    public StudentClass updateHiddenStatus(Student student, Class aclass) {
+        StudentClass studentClass = studentClassRepository.findByStudentAndAClass(student, aclass);
+        if (studentClass == null)
+            return null;
+        studentClass.setHide(!studentClass.isHide());
+        return studentClassRepository.save(studentClass);
+    }
+
+    public StudentClass findByStudentAndAClass(Student student, Class aclass) {
+        return studentClassRepository.findByStudentAndAClass(student, aclass);
+    }
 }
