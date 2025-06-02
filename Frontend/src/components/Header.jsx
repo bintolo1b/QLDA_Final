@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AppBar, Toolbar, Typography, InputBase, Box, List, ListItem, ListItemText, Paper, ClickAwayListener } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import AccountMenu from './AccountMenu';
 
 function Header() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [classes, setClasses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [userRole, setUserRole] = useState('');
+  const navigate = useNavigate();
   
   // Xác định vai trò người dùng khi component được tải
   useEffect(() => {
@@ -17,64 +19,104 @@ function Header() {
     setUserRole(roles || '');
   }, []);
   
-  // Fetch classes from API based on user role
-  useEffect(() => {
-    if (!userRole) return; // Nếu chưa có thông tin vai trò, không fetch dữ liệu
-    
-    const fetchClasses = async () => {
-      try {
-        // Chọn API endpoint dựa trên vai trò người dùng
-        const endpoint = userRole.includes('TEACHER') 
-          ? 'https://localhost:7070/api/classes/teacher/my-classes' 
-          : 'https://localhost:7070/api/classes/student/my-classes';
-        
-        const response = await fetch(endpoint, {
-          credentials: 'include'
-        });
-        
-        if (!response.ok) {
-          throw new Error('Không thể kết nối đến máy chủ');
-        }
-        
-        const data = await response.json();
-        setClasses(data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Lỗi khi tải dữ liệu lớp học:', error);
-        setError(error.message);
-        setLoading(false);
-      }
+  // Debounce function để tránh gọi API quá nhiều
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(null, args), delay);
     };
-
-    fetchClasses();
-  }, [userRole]); // Chạy lại khi userRole thay đổi
+  };
   
-  // Generate suggestions based on class data
-  const suggestions = classes.map(classItem => classItem.name || "Lớp học không có tên");
+  // Function to search classes using API
+  const searchClasses = async (searchString) => {
+    if (!searchString.trim()) {
+      setSearchResults([]);
+      setShowSuggestions(false);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const endpoint = `https://localhost:7070/api/classes/search?searchString=${encodeURIComponent(searchString)}`;
+      
+      const response = await fetch(endpoint, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (response.status === 404) {
+        // Không tìm thấy kết quả
+        setSearchResults([]);
+        setShowSuggestions(true);
+        setLoading(false);
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error('Không thể kết nối đến máy chủ');
+      }
+      
+      const data = await response.json();
+      setSearchResults(data);
+      setShowSuggestions(true);
+      setLoading(false);
+    } catch (error) {
+      console.error('Lỗi khi tìm kiếm lớp học:', error);
+      setError(error.message);
+      setSearchResults([]);
+      setShowSuggestions(true);
+      setLoading(false);
+    }
+  };
   
-  const filteredSuggestions = suggestions.filter(
-    suggestion => suggestion.toLowerCase().includes(searchTerm.toLowerCase())
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    debounce((searchString) => {
+      searchClasses(searchString);
+    }, 300),
+    []
   );
   
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setShowSuggestions(e.target.value.length > 0);
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    if (value.trim()) {
+      debouncedSearch(value);
+    } else {
+      setShowSuggestions(false);
+      setSearchResults([]);
+    }
   };
   
-  const handleSuggestionClick = (suggestion) => {
-    setSearchTerm(suggestion);
+  const handleSuggestionClick = (classItem) => {
+    setSearchTerm(classItem.name);
     setShowSuggestions(false);
-    // Here you would handle the search action, e.g. navigate to the class page
     
-    // Xử lý khác nhau dựa trên vai trò
-    if (userRole.includes('TEACHER')) {
-      // Xử lý dành cho giáo viên
-      console.log('Giáo viên tìm kiếm:', suggestion);
-      // Ví dụ: navigate(`/teacher/classes/${classId}`);
-    } else {
-      // Xử lý dành cho học sinh
-      console.log('Học sinh tìm kiếm:', suggestion);
-      // Ví dụ: navigate(`/student/classes/${classId}`);
+    // // Chuyển hướng dựa trên vai trò người dùng
+    // if (userRole.includes('TEACHER')) {
+    //   // Chuyển đến trang quản lý lớp học của giáo viên
+    //   navigate(`/teacher/classes/${classItem.id}`);
+    // } else {
+    //   // Chuyển đến trang lớp học của sinh viên
+    //   navigate(`/student/classes/${classItem.id}`);
+    // }
+    
+    setTimeout(() => {
+      navigate(`/calendar/${classItem.id}`);
+      setSearchTerm('');
+    }, 200);
+  };
+  
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && searchTerm.trim()) {
+      // Tìm kiếm khi nhấn Enter
+      searchClasses(searchTerm);
     }
   };
   
@@ -107,9 +149,12 @@ function Header() {
           <ClickAwayListener onClickAway={() => setShowSuggestions(false)}>
             <Box sx={{ width: '100%' }}>
               <InputBase
-                placeholder={loading ? "Đang tải dữ liệu..." : `Tìm kiếm lớp học${userRole.includes('TEACHER') ? ' bạn dạy' : ''}...`}
+                placeholder={userRole.includes('TEACHER') 
+                  ? 'Tìm kiếm lớp học bạn dạy...' 
+                  : 'Tìm kiếm lớp học bạn tham gia...'}
                 value={searchTerm}
                 onChange={handleSearchChange}
+                onKeyPress={handleKeyPress}
                 onFocus={() => searchTerm && setShowSuggestions(true)}
                 sx={{
                   width: '100%',
@@ -132,28 +177,31 @@ function Header() {
                   <List dense>
                     {loading ? (
                       <ListItem>
-                        <ListItemText primary="Đang tải dữ liệu lớp học..." />
+                        <ListItemText primary="Đang tìm kiếm..." />
                       </ListItem>
                     ) : error ? (
                       <ListItem>
                         <ListItemText primary={`Lỗi: ${error}`} />
                       </ListItem>
-                    ) : filteredSuggestions.length > 0 ? (
-                      filteredSuggestions.map((suggestion, index) => (
+                    ) : searchResults.length > 0 ? (
+                      searchResults.map((classItem) => (
                         <ListItem 
                           button 
-                          key={index} 
-                          onClick={() => handleSuggestionClick(suggestion)}
+                          key={classItem.id} 
+                          onClick={() => handleSuggestionClick(classItem)}
                           sx={{ '&:hover': { bgcolor: '#f5f5f5' } }}
                         >
-                          <ListItemText primary={suggestion} />
+                          <ListItemText 
+                            primary={classItem.name}
+                            secondary={`Số tuần: ${classItem.numberOfWeeks} | Tạo: ${new Date(classItem.createdAt).toLocaleDateString('vi-VN')}`}
+                          />
                         </ListItem>
                       ))
-                    ) : (
+                    ) : searchTerm.trim() ? (
                       <ListItem>
                         <ListItemText primary="Không tìm thấy lớp học phù hợp" />
                       </ListItem>
-                    )}
+                    ) : null}
                   </List>
                 </Paper>
               )}
