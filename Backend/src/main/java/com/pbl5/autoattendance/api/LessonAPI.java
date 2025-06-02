@@ -25,7 +25,7 @@ public class LessonAPI {
 
     @GetMapping("/class/{classId}")
     public ResponseEntity<List<LessonDTO>> getLessonsByClassId(@PathVariable Integer classId) {
-        List<Lesson> lessons = lessonService.getLessonsByClassIdBeforeDate(classId);
+        List<Lesson> lessons = lessonService.getLessonsByClassId(classId);
         List<LessonDTO> lessonDTODTOS = lessons.stream()
                 .map(this::convertToDTO)
                 .toList();

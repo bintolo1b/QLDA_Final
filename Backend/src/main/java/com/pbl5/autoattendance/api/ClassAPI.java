@@ -189,6 +189,7 @@ public class ClassAPI {
                 .format(formatter);
 
         ClassWithLessonRepsonseDTO dto = ClassWithLessonRepsonseDTO.builder()
+                .classId(aclass.getId())
                 .name(aclass.getName())
                 .numberOfWeeks(aclass.getNumberOfWeeks())
                 .schedule(schedule)
