@@ -199,6 +199,26 @@ public class ClassAPI {
         
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchClassByString(@RequestParam("searchString") String searchString) {
+        if (searchString == null){
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "Search string cannot be null");
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<Class> classes = classService.searchClassesByString(searchString ,username);
+        if (classes.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        List<ClassDTO> classDTOs = classes.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(classDTOs, HttpStatus.OK);
+    }
     
     private StudentDTO convertToStudentDTO(Student student) {
         StudentDTO dto = new StudentDTO();
