@@ -17,4 +17,5 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
     List<Class> findByTeacher(Teacher teacher);
 
 
+    List<Class> findByNameContainingIgnoreCase(String searchString);
 }

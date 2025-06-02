@@ -7,10 +7,7 @@ import com.pbl5.autoattendance.model.Student;
 import com.pbl5.autoattendance.model.StudentClass;
 import com.pbl5.autoattendance.model.Teacher;
 import com.pbl5.autoattendance.model.Lesson;
-import com.pbl5.autoattendance.repository.ClassRepository;
-import com.pbl5.autoattendance.repository.StudentClassRepository;
-import com.pbl5.autoattendance.repository.TeacherRepository;
-import com.pbl5.autoattendance.repository.LessonRepository;
+import com.pbl5.autoattendance.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +29,7 @@ public class ClassService {
     TeacherRepository teacherRepository;
     StudentClassRepository studentClassRepository;
     LessonRepository lessonRepository;
+    private final StudentRepository studentRepository;
 
     public List<Class> getAllClasses() {
         return classRepository.findAll();
@@ -102,5 +100,25 @@ public class ClassService {
     private boolean isTimeOverlap(LocalTime start1, LocalTime end1, LocalTime start2, LocalTime end2) {
         // Kiểm tra xem hai khoảng thời gian có giao nhau không
         return !start1.isAfter(end2) && !start2.isAfter(end1);
+    }
+
+    public List<Class> searchClassesByString(String searchString, String username) {
+        List<Class> classes = classRepository.findByNameContainingIgnoreCase(searchString);
+        if (classes.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Class> returnList = new ArrayList<>();
+
+        for(Class aclass:classes){
+           if (aclass.getTeacher().getUser().getUsername().equals(username))
+               returnList.add(aclass);
+           if (aclass.getStudentClasses().stream()
+                   .anyMatch(studentClass -> studentClass.getStudent().getUser().getUsername().equals(username))) {
+               returnList.add(aclass);
+           }
+        }
+
+        return returnList;
     }
 }
