@@ -48,12 +48,13 @@ public class ClassAPI {
     
     @GetMapping("/{classId}/students")
     public ResponseEntity<List<StudentDTO>> getStudentsByClassId(@PathVariable Integer classId) {
-        Class classEntity = classService.getClassById(classId);
-        if (classEntity == null) {
+
+        Class classEnt = classService.getClassById(classId);
+        if (classEnt == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         
-        List<StudentDTO> studentDTOs = classEntity.getStudentClasses().stream()
+        List<StudentDTO> studentDTOs = classEnt.getStudentClasses().stream()
                 .map(StudentClass::getStudent)
                 .map(this::convertToStudentDTO)
                 .collect(Collectors.toList());

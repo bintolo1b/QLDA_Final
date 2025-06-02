@@ -35,7 +35,7 @@ public class AttendanceCheckAPI {
     LessonService lessonService;
 
 
-    @PostMapping("/check")
+    @PostMapping("/check")  
     public ResponseEntity<AttendanceCheckDTO> checkAttendance(@RequestBody Map<String, Object> request) {
         Integer lessonId = (Integer) request.get("lessonId");
         Integer studentId = (Integer) request.get("studentId");
