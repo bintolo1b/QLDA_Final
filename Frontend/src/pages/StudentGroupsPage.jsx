@@ -63,31 +63,33 @@ function StudentGroupsPage() {
   return (
     <Box 
       sx={{ 
-        padding: 3, 
+        padding: { xs: 2, sm: 4 }, 
         position: 'relative',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)',
+        background: 'linear-gradient(135deg, #f0f4f8 0%, #e6eef7 100%)',
+        overflow: 'hidden',
       }}
     >
       <Box 
         sx={{ 
           position: 'absolute', 
-          top: 16, 
-          right: 24,
-          zIndex: 1
+          top: 18, 
+          right: 32,
+          zIndex: 2
         }}
       >
         <FindGroupButton />
       </Box>
       
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 4, position: 'relative', zIndex: 1 }}>
         <Typography 
           variant="h4" 
           sx={{ 
             color: '#1976d2',
-            fontWeight: 'bold',
-            mb: 2,
-            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            fontWeight: 700,
+            mb: 1.5,
+            letterSpacing: 0.5,
+            textShadow: '0 2px 8px rgba(25,118,210,0.08)',
           }}
         >
           Danh sách lớp học
@@ -95,8 +97,9 @@ function StudentGroupsPage() {
         <Typography 
           variant="subtitle1" 
           sx={{ 
-            color: '#666',
-            mb: 3
+            color: '#4a5568',
+            mb: 2.5,
+            fontWeight: 500,
           }}
         >
           Theo dõi và tham gia các lớp học của bạn
@@ -106,11 +109,13 @@ function StudentGroupsPage() {
       <ToggleSection 
         label="Lớp học đang tham gia"
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          borderRadius: 2,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-          padding: 2,
-          mb: 3
+          backgroundColor: 'rgba(255,255,255,0.98)',
+          borderRadius: 3,
+          boxShadow: '0 8px 24px rgba(25,118,210,0.10)',
+          padding: { xs: 1.5, sm: 3 },
+          mb: 3,
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         {loading ? (
@@ -119,15 +124,16 @@ function StudentGroupsPage() {
               display: 'flex', 
               justifyContent: 'center', 
               alignItems: 'center',
-              minHeight: '200px'
+              minHeight: '200px',
             }}
           >
             <CircularProgress 
               sx={{ 
                 color: '#1976d2',
+                scale: 1.2,
                 '& .MuiCircularProgress-circle': {
                   strokeLinecap: 'round',
-                }
+                },
               }} 
             />
           </Box>
@@ -136,6 +142,12 @@ function StudentGroupsPage() {
             severity="error" 
             sx={{ 
               mb: 2,
+              fontWeight: 600,
+              fontSize: 16,
+              borderRadius: 2,
+              background: '#fff3e0',
+              color: '#d32f2f',
+              boxShadow: '0 2px 8px rgba(211,47,47,0.08)',
               '& .MuiAlert-icon': {
                 color: '#d32f2f'
               }
@@ -148,7 +160,10 @@ function StudentGroupsPage() {
             sx={{ 
               textAlign: 'center', 
               py: 4,
-              color: '#666'
+              color: '#1976d2',
+              fontWeight: 500,
+              fontSize: 18,
+              opacity: 0.85,
             }}
           >
             <Typography variant="body1">
@@ -160,7 +175,7 @@ function StudentGroupsPage() {
             sx={{ 
               display: 'grid',
               gridTemplateColumns: `repeat(${getGridColumns()}, 1fr)`,
-              gap: 3,
+              gap: { xs: 2, sm: 3 },
               p: 2,
               '@media (max-width: 600px)': {
                 gridTemplateColumns: '1fr',
@@ -169,11 +184,26 @@ function StudentGroupsPage() {
             }}
           >
             {classes.map(classItem => (
-              <Card 
+              <Box
                 key={classItem.id}
-                groupTeamName={classItem.name || "Lớp học không có tên"} 
-                classId={classItem.id}
-              />
+                sx={{
+                  borderRadius: 3,
+                  boxShadow: '0 4px 16px rgba(25,118,210,0.10)',
+                  transition: 'transform 0.18s, box-shadow 0.18s',
+                  background: '#f8fafc',
+                  '&:hover': {
+                    transform: 'translateY(-6px) scale(1.03)',
+                    boxShadow: '0 8px 32px rgba(25,118,210,0.18)',
+                    background: '#e3e9ff',
+                  },
+                  p: 1.2,
+                }}
+              >
+                <Card 
+                  groupTeamName={classItem.name || "Lớp học không có tên"} 
+                  classId={classItem.id}
+                />
+              </Box>
             ))}
           </Box>
         )}
@@ -182,17 +212,21 @@ function StudentGroupsPage() {
       <ToggleSection 
         label="Lớp học đã ẩn"
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          borderRadius: 2,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-          padding: 2
+          backgroundColor: 'rgba(255,255,255,0.96)',
+          borderRadius: 3,
+          boxShadow: '0 4px 12px rgba(25,118,210,0.05)',
+          padding: { xs: 1.5, sm: 3 },
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <Box 
           sx={{ 
             textAlign: 'center', 
             py: 4,
-            color: '#666'
+            color: '#666',
+            fontWeight: 500,
+            fontSize: 16,
           }}
         >
           <Typography variant="body1">
