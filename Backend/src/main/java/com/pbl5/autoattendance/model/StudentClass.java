@@ -14,6 +14,9 @@ public class StudentClass {
     @EmbeddedId
     private StudentClassId id;
 
+    @Column(name = "hide", nullable = false)
+    private boolean hide = false;
+
     @MapsId("studentId")
     @ManyToOne
     @JoinColumn(name = "student_id")

@@ -121,4 +121,8 @@ public class ClassService {
 
         return returnList;
     }
+
+    public Class saveClass(Class aclass) {
+        return classRepository.save(aclass);
+    }
 }

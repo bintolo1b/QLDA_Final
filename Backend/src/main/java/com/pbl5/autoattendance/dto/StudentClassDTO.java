@@ -8,4 +8,5 @@ import lombok.Setter;
 public class StudentClassDTO {
     private Integer class_id;
     private Integer student_id;
+    private boolean hide;
 }

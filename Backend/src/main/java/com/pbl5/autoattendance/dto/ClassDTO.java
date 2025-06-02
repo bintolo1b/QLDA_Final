@@ -24,4 +24,6 @@ public class ClassDTO {
     private Integer numberOfWeeks;
 
     private Integer teacherId;
+
+    private boolean hideToTeacher;
 }
