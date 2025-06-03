@@ -71,6 +71,7 @@ function App() {
                     <Routes>
                       <Route path="/" element={<Navigate to="/groups" replace />} />
                       <Route path="/groups" element={<GroupsRouter />} />
+                      <Route path="/student/face-registration" element={<FaceRegistrationPage />} />
                       <Route path="/assignment" element={<AssignmentPage />} />
                       <Route path="/activities/*" element={<Activity />} />
                       <Route path="/chats/*" element={<Chat />} />

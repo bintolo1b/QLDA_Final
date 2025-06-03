@@ -15,7 +15,11 @@ import {
   Card,
   CardContent,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -28,6 +32,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import LockIcon from '@mui/icons-material/Lock';
 import api from '../api/axios';
 
 function AccountProfilePage() {
@@ -47,6 +52,17 @@ function AccountProfilePage() {
   });
   const [avatarUrl, setAvatarUrl] = useState('');
   const [avatarLoading, setAvatarLoading] = useState(false);
+
+  // Password change states
+  const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   useEffect(() => {
     // Check login
@@ -112,6 +128,14 @@ function AccountProfilePage() {
     });
   };
 
+  const handlePasswordInputChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordForm({
+      ...passwordForm,
+      [name]: value
+    });
+  };
+
   const handleEditToggle = () => {
     if (isEditing) {
       setFormData({
@@ -124,6 +148,47 @@ function AccountProfilePage() {
     setIsEditing(!isEditing);
     setError('');
     setSuccess('');
+  };
+
+  const handlePasswordDialogOpen = () => {
+    setOpenPasswordDialog(true);
+    setPasswordError('');
+    setPasswordSuccess('');
+    setPasswordForm({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+  };
+
+  const handlePasswordDialogClose = () => {
+    setOpenPasswordDialog(false);
+  };
+
+  const handlePasswordSubmit = async () => {
+    setPasswordLoading(true);
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    try {
+      await api.patch('/api/users/password', passwordForm, {
+        withCredentials: true
+      });
+
+      setPasswordSuccess('Đổi mật khẩu thành công!');
+      setTimeout(() => {
+        handlePasswordDialogClose();
+      }, 1500);
+    } catch (err) {
+      console.error('Error changing password:', err);
+      if (err.response && err.response.data) {
+        setPasswordError(err.response.data.message || 'Có lỗi xảy ra');
+      } else {
+        setPasswordError('Không thể kết nối đến máy chủ');
+      }
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   const handleAvatarChange = async (event) => {
@@ -464,6 +529,25 @@ function AccountProfilePage() {
                     {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
                   </Button>
                 )}
+
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<LockIcon />}
+                  onClick={handlePasswordDialogOpen}
+                  sx={{ 
+                    borderRadius: 2,
+                    py: 1.2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                    },
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  Đổi mật khẩu
+                </Button>
               </Box>
             </Grid>
 
@@ -613,6 +697,83 @@ function AccountProfilePage() {
           </Grid>
         </CardContent>
       </Card>
+
+      {/* Password Change Dialog */}
+      <Dialog 
+        open={openPasswordDialog} 
+        onClose={handlePasswordDialogClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ pb: 1 }}>
+          <Typography variant="h6" fontWeight={600}>
+            Đổi mật khẩu
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent>
+          {passwordError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {passwordError}
+            </Alert>
+          )}
+          
+          {passwordSuccess && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {passwordSuccess}
+            </Alert>
+          )}
+
+          <TextField
+            fullWidth
+            margin="dense"
+            label="Mật khẩu hiện tại"
+            type="password"
+            name="currentPassword"
+            value={passwordForm.currentPassword}
+            onChange={handlePasswordInputChange}
+            sx={{ mb: 2 }}
+          />
+
+          <TextField
+            fullWidth
+            margin="dense"
+            label="Mật khẩu mới"
+            type="password"
+            name="newPassword"
+            value={passwordForm.newPassword}
+            onChange={handlePasswordInputChange}
+            sx={{ mb: 2 }}
+          />
+
+          <TextField
+            fullWidth
+            margin="dense"
+            label="Xác nhận mật khẩu mới"
+            type="password"
+            name="confirmPassword"
+            value={passwordForm.confirmPassword}
+            onChange={handlePasswordInputChange}
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button 
+            onClick={handlePasswordDialogClose}
+            color="inherit"
+            disabled={passwordLoading}
+          >
+            Huỷ
+          </Button>
+          <Button 
+            onClick={handlePasswordSubmit}
+            variant="contained"
+            disabled={passwordLoading}
+          >
+            {passwordLoading ? 'Đang xử lý...' : 'Xác nhận'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }

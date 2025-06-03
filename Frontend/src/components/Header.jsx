@@ -134,7 +134,7 @@ function Header() {
         }}
       >
         <Typography variant="h6" sx={{color: '#000', fontWeight: '300'}}>
-          PBL5 {userRole.includes('TEACHER') ? '(Giáo viên)' : '(Học sinh)'}
+          Auto Attendance System {userRole.includes('TEACHER') ? '(Giảng viên)' : '(Sinh viên)'}
         </Typography>
         
         <Box sx={{ 

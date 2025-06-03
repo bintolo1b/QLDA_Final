@@ -17,7 +17,7 @@ import {
   ListItemIcon,
   ListItemText
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
@@ -27,6 +27,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 
 function ClassPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [classData, setClassData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -90,8 +91,10 @@ function ClassPage() {
             {classData?.name || 'Thông tin lớp học'}
           </Typography>
           <Chip
-            label={'Đang hoạt động'}
-            color={'success'}
+            label="Xem lịch học"
+            color="primary"
+            clickable
+            onClick={() => navigate(`/calendar/${classData?.classId}`)}
           />
         </Box>
 
@@ -104,6 +107,15 @@ function ClassPage() {
               <CardHeader title="Thông tin chung" />
               <CardContent>
                 <List>
+                  <ListItem>
+                    <ListItemIcon>
+                      <DateRangeIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary="Mã lớp"
+                      secondary={classData?.classId}
+                    />
+                  </ListItem>
                   <ListItem>
                     <ListItemIcon>
                       <DateRangeIcon />

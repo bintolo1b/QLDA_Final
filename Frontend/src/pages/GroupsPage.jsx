@@ -11,22 +11,60 @@ function GroupsPage() {
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   
   const [classes, setClasses] = useState([]);
+  const [hiddenClasses, setHiddenClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const handleHideStatusChange = (classId, isHidden) => {
+    const classToMove = classes.find(c => c.id === classId) || hiddenClasses.find(c => c.id === classId);
+    if (classToMove) {
+      if (isHidden) {
+        setClasses(classes.filter(c => c.id !== classId));
+        setHiddenClasses([...hiddenClasses, classToMove]);
+      } else {
+        setHiddenClasses(hiddenClasses.filter(c => c.id !== classId));
+        setClasses([...classes, classToMove]);
+      }
+    }
+  };
+
+  const checkHiddenStatus = async (classItem) => {
+    try {
+      const response = await api.get(`/api/classes/checkHiddenToTeacher/${classItem.id}`, {
+        withCredentials: true
+      });
+      return response.data.hide === "true";
+    } catch (error) {
+      console.error('Error checking hidden status:', error);
+      return false;
+    }
+  };
+
   const fetchClasses = async () => {
     try {
-      console.log(localStorage.getItem('roles'));
       const response = await api.get('/api/classes/teacher/my-classes', {
         withCredentials: true
       });
       
-      setClasses(response.data);
+      const allClasses = response.data;
+      const hidden = [];
+      const visible = [];
+
+      for (const classItem of allClasses) {
+        const isHidden = await checkHiddenStatus(classItem);
+        if (isHidden) {
+          hidden.push(classItem);
+        } else {
+          visible.push(classItem);
+        }
+      }
+
+      setClasses(visible);
+      setHiddenClasses(hidden);
       setLoading(false);
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu lớp học:', error);
       
-      // Xử lý lỗi từ axios
       if (error.response) {
         setError(error.response.data.message || 'Không thể tải dữ liệu lớp học');
       } else if (error.request) {
@@ -170,6 +208,8 @@ function GroupsPage() {
                 key={classItem.id}
                 groupTeamName={classItem.name || "Lớp học không có tên"} 
                 classId={classItem.id}
+                initialHidden={false}
+                onHideStatusChange={handleHideStatusChange}
               />
             ))}
           </Box>
@@ -185,17 +225,42 @@ function GroupsPage() {
           padding: 2
         }}
       >
-        <Box 
-          sx={{ 
-            textAlign: 'center', 
-            py: 4,
-            color: '#666'
-          }}
-        >
-          <Typography variant="body1">
-            Không có lớp học nào đã ẩn
-          </Typography>
-        </Box>
+        {!loading && !error && hiddenClasses.length > 0 ? (
+          <Box 
+            sx={{ 
+              display: 'grid',
+              gridTemplateColumns: `repeat(${getGridColumns()}, 1fr)`,
+              gap: 3,
+              p: 2,
+              '@media (max-width: 600px)': {
+                gridTemplateColumns: '1fr',
+                gap: 2
+              }
+            }}
+          >
+            {hiddenClasses.map(classItem => (
+              <Card 
+                key={classItem.id}
+                groupTeamName={classItem.name || "Lớp học không có tên"} 
+                classId={classItem.id}
+                initialHidden={true}
+                onHideStatusChange={handleHideStatusChange}
+              />
+            ))}
+          </Box>
+        ) : (
+          <Box 
+            sx={{ 
+              textAlign: 'center', 
+              py: 4,
+              color: '#666'
+            }}
+          >
+            <Typography variant="body1">
+              Không có lớp học nào đã ẩn
+            </Typography>
+          </Box>
+        )}
       </ToggleSection>
     </Box>
   );

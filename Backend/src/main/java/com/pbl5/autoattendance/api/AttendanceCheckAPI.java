@@ -123,9 +123,11 @@ public class AttendanceCheckAPI {
 
 
         attendanceCheck.setStatus(attendanceCheckDTO.getStatus());
-        attendanceCheck.setImgPath(attendanceCheckDTO.getImgPath());
 
-        attendanceCheck.setCheckinDate(attendanceCheckDTO.getCheckinDate());
+        if (!attendanceCheckDTO.getImgPath().equals(""))
+            attendanceCheck.setImgPath(attendanceCheckDTO.getImgPath());
+
+        attendanceCheck.setCheckinDate(attendanceCheckDTO.getStatus().equals("Absent")?null:attendanceCheckDTO.getCheckinDate());
         LocalDateTime checkinDate = attendanceCheckDTO.getCheckinDate();
 
         // Chuyển LocalDateTime thành ZonedDateTime (giả sử checkinDate là UTC)

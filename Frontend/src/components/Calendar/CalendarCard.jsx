@@ -1,11 +1,12 @@
 import { Box, Typography } from "@mui/material";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import { Navigate, useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
 
 const styles = {
   container: {
     border: "1px solid #ddd",
-    borderRadius: "8px",
+    borderRadius: "8px", 
     padding: "16px",
     width: "90%", // Thay đổi từ width cố định sang phần trăm
     maxWidth: "900px", // Thêm maxWidth để giới hạn độ rộng tối đa
@@ -61,10 +62,27 @@ function CalendarCard({ date, status, endTime, total, startTime, lessonId }) {
   const navigate = useNavigate()
   
   const handleClick = () => {
+    if (status === "Pending") {
+      Swal.fire({
+        title: 'Thông báo!',
+        text: 'Buổi học chưa diễn ra!',
+        icon: 'info',
+        confirmButtonText: 'Đóng',
+        confirmButtonColor: '#3085d6',
+        customClass: {
+          popup: 'swal2-show',
+          title: 'swal2-title',
+          content: 'swal2-content',
+          confirmButton: 'swal2-confirm'
+        }
+      });
+      return;
+    }
+
     const roles = localStorage.getItem('roles');
     if (roles && roles.includes('ROLE_TEACHER')) {
       navigate(`/calendar/attendance/${lessonId}`);
-    }else if (roles && roles.includes('ROLE_STUDENT')){
+    } else if (roles && roles.includes('ROLE_STUDENT')){
       navigate(`/calendar/attendance/check/${lessonId}`)
     }
   }
@@ -81,7 +99,6 @@ function CalendarCard({ date, status, endTime, total, startTime, lessonId }) {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        // cursor: localStorage.getItem('roles')?.includes('ROLE_TEACHER') ? 'pointer' : 'default'
         cursor: 'pointer'
       }}
       onClick={handleClick}

@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Drawer, List, ListItem, ListItemText, ListItemIcon, Typography, Box } from '@mui/material';
 import { Group as GroupIcon, Assignment as AssignmentIcon, Notifications as ActivityIcon} from '@mui/icons-material';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import { Link, useLocation } from 'react-router-dom';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import FaceIcon from '@mui/icons-material/Face';
 
 function Sidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
+  const [isStudent, setIsStudent] = useState(false);
+
+  useEffect(() => {
+    const checkRole = () => {
+      const roles = localStorage.getItem('roles');
+      const hasStudentRole = roles && roles.includes('ROLE_STUDENT');
+      setIsStudent(hasStudentRole);
+    };
+    
+    checkRole();
+    window.addEventListener('storage', checkRole);
+    return () => window.removeEventListener('storage', checkRole);
+  }, []);
   
   const listItemTestStyle = {
     '& .MuiListItemText-primary': {
@@ -105,51 +119,23 @@ function Sidebar() {
           </ListItemIcon>
           <ListItemText primary="Account" sx={currentPath === '/profile' ? selectedListItemTextStyle : listItemTestStyle} />
         </ListItem>
-        
-        {/* <ListItem 
-          sx={getListItemStyles('/assignment')} 
-          button 
-          component={Link} 
-          to="/assignment"
-        >
-          <ListItemIcon sx={{display: 'flex', justifyContent: 'center'}}>
-            <AssignmentIcon sx={{ 
-              color: currentPath === '/assignment' ? '#1976d2' : '#727272',
-              transition: 'color 0.3s ease'
-            }} />
-          </ListItemIcon>
-          <ListItemText primary="Assignment" sx={currentPath === '/assignment' ? selectedListItemTextStyle : listItemTestStyle} />
-        </ListItem>
 
-        <ListItem 
-          sx={getListItemStyles('/activities')} 
-          button 
-          component={Link} 
-          to="/activities"
-        >
-          <ListItemIcon sx={{display: 'flex', justifyContent: 'center'}}>
-            <ActivityIcon sx={{ 
-              color: currentPath === '/activities' ? '#1976d2' : '#727272',
-              transition: 'color 0.3s ease'
-            }} />
-          </ListItemIcon>
-          <ListItemText primary="Activity" sx={currentPath === '/activities' ? selectedListItemTextStyle : listItemTestStyle} />
-        </ListItem>
-
-        <ListItem 
-          sx={getListItemStyles('/chats')} 
-          button 
-          component={Link} 
-          to="/chats"
-        >
-          <ListItemIcon sx={{display: 'flex', justifyContent: 'center'}}>
-            <ChatBubbleIcon sx={{ 
-              color: currentPath === '/chats' ? '#1976d2' : '#727272',
-              transition: 'color 0.3s ease'
-            }} />
-          </ListItemIcon>
-          <ListItemText primary="Chat" sx={currentPath === '/chats' ? selectedListItemTextStyle : listItemTestStyle} />
-        </ListItem> */}
+        {isStudent && (
+          <ListItem 
+            sx={getListItemStyles('/student/face-registration')} 
+            button 
+            component={Link} 
+            to="/student/face-registration"
+          >
+            <ListItemIcon sx={{display: 'flex', justifyContent: 'center'}}>
+              <FaceIcon sx={{ 
+                color: currentPath === '/student/face-registration' ? '#1976d2' : '#727272',
+                transition: 'color 0.3s ease'
+              }} />
+            </ListItemIcon>
+            <ListItemText primary="Face" sx={currentPath === '/student/face-registration' ? selectedListItemTextStyle : listItemTestStyle} />
+          </ListItem>
+        )}
       </List>
     </Drawer>
   );

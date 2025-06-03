@@ -57,7 +57,9 @@ function LoginPage() {
 
             // Lưu roles vào localStorage
             localStorage.setItem("roles", data.roles);
-
+            if (data.roles.includes('ROLE_STUDENT')) {
+                localStorage.setItem('pendingFaceRegistration', username);
+            }
             // Lưu token vào localStorage nếu API trả về token
             if (data.token) {
                 localStorage.setItem("token", data.token);

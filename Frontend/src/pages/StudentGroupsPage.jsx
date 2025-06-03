@@ -11,47 +11,66 @@ function StudentGroupsPage() {
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   
   const [classes, setClasses] = useState([]);
+  const [hiddenClasses, setHiddenClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const handleHideStatusChange = (classId, isHidden) => {
+    const classToMove = classes.find(c => c.id === classId) || hiddenClasses.find(c => c.id === classId);
+    if (classToMove) {
+      if (isHidden) {
+        setClasses(classes.filter(c => c.id !== classId));
+        setHiddenClasses([...hiddenClasses, classToMove]);
+      } else {
+        setHiddenClasses(hiddenClasses.filter(c => c.id !== classId));
+        setClasses([...classes, classToMove]);
+      }
+    }
+  };
+
+  const checkHiddenStatus = async (classItem) => {
+    try {
+      const response = await api.get(`/api/student-class/checkHidden/${classItem.id}`, {
+        withCredentials: true
+      });
+      return response.data.hide === "true";
+    } catch (error) {
+      console.error('Error checking hidden status:', error);
+      return false;
+    }
+  };
+
   const fetchClasses = async () => {
     try {
-
       const response = await api.get('/api/classes/student/my-classes', {
         withCredentials: true
       });
       
-      setClasses(response.data);
+      const allClasses = response.data;
+      const hidden = [];
+      const visible = [];
+
+      for (const classItem of allClasses) {
+        const isHidden = await checkHiddenStatus(classItem);
+        if (isHidden) {
+          hidden.push(classItem);
+        } else {
+          visible.push(classItem);
+        }
+      }
+
+      setClasses(visible);
+      setHiddenClasses(hidden);
       setLoading(false);
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu lớp học:', error);
-      
-      // Xử lý lỗi từ axios
-      if (error.response) {
-        // Server trả về response với status code lỗi
-        setError(error.response.data.message || 'Lỗi máy chủ');
-      } else if (error.request) {
-        // Request đã gửi nhưng không nhận được response
-        setError('Không thể kết nối đến máy chủ');
-      } else {
-        // Lỗi khi thiết lập request
-        setError(error.message);
-      }
-      
+      setError(error.message);
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const roles = localStorage.getItem('roles');
-    if (!roles || !roles.includes('ROLE_TEACHER')) {
-      console.log("Fetching student classes with roles:", roles);
-      fetchClasses();
-    } else {
-      console.warn("StudentGroupsPage accessed with teacher role:", roles);
-      setError("Bạn không có quyền truy cập trang này");
-      setLoading(false);
-    }
+    fetchClasses();
   }, []);
 
   const getGridColumns = () => {
@@ -79,7 +98,7 @@ function StudentGroupsPage() {
       >
         <FindGroupButton />
       </Box>
-      
+
       <Box sx={{ mb: 4 }}>
         <Typography 
           variant="h4" 
@@ -173,6 +192,8 @@ function StudentGroupsPage() {
                 key={classItem.id}
                 groupTeamName={classItem.name || "Lớp học không có tên"} 
                 classId={classItem.id}
+                initialHidden={false}
+                onHideStatusChange={handleHideStatusChange}
               />
             ))}
           </Box>
@@ -188,17 +209,42 @@ function StudentGroupsPage() {
           padding: 2
         }}
       >
-        <Box 
-          sx={{ 
-            textAlign: 'center', 
-            py: 4,
-            color: '#666'
-          }}
-        >
-          <Typography variant="body1">
-            Không có lớp học nào đã ẩn
-          </Typography>
-        </Box>
+        {!loading && !error && hiddenClasses.length > 0 ? (
+          <Box 
+            sx={{ 
+              display: 'grid',
+              gridTemplateColumns: `repeat(${getGridColumns()}, 1fr)`,
+              gap: 3,
+              p: 2,
+              '@media (max-width: 600px)': {
+                gridTemplateColumns: '1fr',
+                gap: 2
+              }
+            }}
+          >
+            {hiddenClasses.map(classItem => (
+              <Card 
+                key={classItem.id}
+                groupTeamName={classItem.name || "Lớp học không có tên"} 
+                classId={classItem.id}
+                initialHidden={true}
+                onHideStatusChange={handleHideStatusChange}
+              />
+            ))}
+          </Box>
+        ) : (
+          <Box 
+            sx={{ 
+              textAlign: 'center', 
+              py: 4,
+              color: '#666'
+            }}
+          >
+            <Typography variant="body1">
+              Không có lớp học nào đã ẩn
+            </Typography>
+          </Box>
+        )}
       </ToggleSection>
     </Box>
   );
