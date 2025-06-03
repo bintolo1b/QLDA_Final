@@ -30,6 +30,7 @@ public class ClassService {
     StudentClassRepository studentClassRepository;
     LessonRepository lessonRepository;
     private final StudentRepository studentRepository;
+    private final LessonService lessonService;
 
     public List<Class> getAllClasses() {
         return classRepository.findAll();
@@ -48,6 +49,7 @@ public class ClassService {
                 .createdAt(LocalDateTime.now())
                 .name(classWithLessonDTO.getName())
                 .numberOfWeeks(classWithLessonDTO.getNumberOfWeeks())
+                .hideToTeacher(false)
                 .teacher(teacher)
                 .build();
         return classRepository.save(newClass);
@@ -75,18 +77,23 @@ public class ClassService {
             existingLessons.addAll(lessonRepository.findByaClass(aClass));
         }
 
-        // Kiểm tra từng buổi học trong lịch mới
-        for (Map.Entry<String, LessonTimeRangeDTO> entry : newClassDTO.getSchedule().entrySet()) {
-            DayOfWeek dayOfWeek = DayOfWeek.valueOf(entry.getKey().toUpperCase());
-            LessonTimeRangeDTO newLessonTime = entry.getValue();
-            
-            // Kiểm tra trùng với các buổi học hiện có
+        // Tạo danh sách lesson ảo cho lớp mới
+        List<Lesson> newLessons = lessonService.generateLessons(
+            newClassDTO.getSchedule(),
+            Class.builder().id(0).build(), // Tạo class tạm thời
+            newClassDTO.getNumberOfWeeks(),
+            false // Không lưu vào database
+        );
+
+        // Kiểm tra từng buổi học mới với các buổi học hiện có
+        for (Lesson newLesson : newLessons) {
             for (Lesson existingLesson : existingLessons) {
-                if (existingLesson.getLessonDate().getDayOfWeek() == dayOfWeek) {
+                // Kiểm tra xem có cùng ngày không
+                if (newLesson.getLessonDate().equals(existingLesson.getLessonDate())) {
                     // Kiểm tra thời gian có trùng nhau không
                     if (isTimeOverlap(
                             existingLesson.getStartTime(), existingLesson.getEndTime(),
-                            newLessonTime.getStartTime(), newLessonTime.getEndTime()
+                            newLesson.getStartTime(), newLesson.getEndTime()
                     )) {
                         return true; // Có trùng lịch
                     }
