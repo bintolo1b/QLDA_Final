@@ -107,7 +107,7 @@ def identity_student():
                 "student_id": -1,
                 "lesson_id": 1,
                 "name": "Fake",
-                "message": f"Warning Fake"
+                "message": f"Warning Fake!"
             }
 
             print(notification)
