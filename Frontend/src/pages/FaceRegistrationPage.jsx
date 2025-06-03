@@ -108,7 +108,6 @@ function FaceRegistrationPage() {
             });
 
             if (faceResponse.ok) {
-                localStorage.removeItem('pendingFaceRegistration');
                 navigate('/login');
             } else {
                 console.error('Lỗi khi đăng ký khuôn mặt');

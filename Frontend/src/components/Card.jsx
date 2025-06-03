@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import Avatar from '@mui/material/Avatar';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { memo } from "react";
+import { memo, useState, useEffect } from "react";
 import MenuButton from "./MenuButton";
 import Tooltip from '@mui/material/Tooltip';
 import { stringAvatar } from "../utils/helper"
@@ -10,9 +10,43 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import SquareFootIcon from '@mui/icons-material/SquareFoot';
 import IconButton from '@mui/material/IconButton';
 import { useNavigate } from "react-router-dom"
+import api from "../api/axios";
 
-function Card({groupTeamName, classId}) {
+function Card({groupTeamName, classId, onHideStatusChange, initialHidden = false}) {
     const navigate = useNavigate();
+    const [isHidden, setIsHidden] = useState(initialHidden);
+
+    useEffect(() => {
+        setIsHidden(initialHidden);
+    }, [initialHidden]);
+
+    const handleHideUnhide = async (e) => {
+        e.stopPropagation();
+        try {
+            const roles = localStorage.getItem('roles');
+            if (roles && roles.includes('ROLE_STUDENT')) {
+                await api.patch(`/api/student-class/updateHidden/${classId}`, {}, {
+                    withCredentials: true
+                });
+                const newHiddenState = !isHidden;
+                setIsHidden(newHiddenState);
+                if (onHideStatusChange) {
+                    onHideStatusChange(classId, newHiddenState);
+                }
+            } else if (roles && roles.includes('ROLE_TEACHER')) {
+                await api.patch(`/api/classes/updateHiddenToTeacher/${classId}`, {}, {
+                    withCredentials: true
+                });
+                const newHiddenState = !isHidden;
+                setIsHidden(newHiddenState);
+                if (onHideStatusChange) {
+                    onHideStatusChange(classId, newHiddenState);
+                }
+            }
+        } catch (error) {
+            console.error('Error updating hide status:', error);
+        }
+    };
 
     const menuItemsList = [
         {
@@ -20,16 +54,11 @@ function Card({groupTeamName, classId}) {
             onClick: (e) => {
                 e.stopPropagation();
                 navigate(`/class/${classId}`)
-                console.log("join")
-                // navigate("/class")
             }
         },
         {
-            title: "Back",
-            onClick: (e) => {
-                e.stopPropagation();
-                console.log("Back")
-            }
+            title: isHidden ? "Unhide" : "Hide",
+            onClick: handleHideUnhide
         },
     ]
 

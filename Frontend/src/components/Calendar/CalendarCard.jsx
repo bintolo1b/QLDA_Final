@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import { Navigate, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const styles = {
   container: {
@@ -61,6 +62,17 @@ function CalendarCard({ date, status, endTime, total, startTime, lessonId }) {
   const navigate = useNavigate()
   
   const handleClick = () => {
+    if (status === "Pending") {
+      Swal.fire({
+        title: 'Thông báo',
+        text: 'Lớp học chưa diễn ra!',
+        icon: 'info',
+        confirmButtonText: 'Đóng',
+        confirmButtonColor: '#3085d6'
+      });
+      return;
+    }
+
     const roles = localStorage.getItem('roles');
     if (roles && roles.includes('ROLE_TEACHER')) {
       navigate(`/calendar/attendance/${lessonId}`);

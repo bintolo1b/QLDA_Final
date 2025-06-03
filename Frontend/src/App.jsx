@@ -6,11 +6,6 @@ import Sidebar from './components/Sidebar';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import GroupsPage from './pages/GroupsPage';
-import AssignmentPage from './pages/AssignmentPage';
-import Activity from './pages/Activity';
-import Chat from './pages/Chat';
-import GeneralClass from './pages/class/GeneralClass';
-import HomeClass from './pages/class/HomeClass';
 import CalendarPage from './pages/CalendarPage';
 import AttendancePage from './pages/AttendancePage';
 import StudentGroupsPage from './pages/StudentGroupsPage';
@@ -70,10 +65,7 @@ function App() {
                   >
                     <Routes>
                       <Route path="/" element={<Navigate to="/groups" replace />} />
-                      <Route path="/groups" element={<GroupsRouter />} />
-                      <Route path="/assignment" element={<AssignmentPage />} />
-                      <Route path="/activities/*" element={<Activity />} />
-                      <Route path="/chats/*" element={<Chat />} />
+                      <Route path="/groups" element={<GroupsRouter />} />          
                       <Route path="/class/:id" element={<ClassPage />} />
                       <Route path="/calendar/:classId" element={<CalendarPage />} />
                       <Route path="/calendar/attendance/:classId" element={<AttendancePage />} />
