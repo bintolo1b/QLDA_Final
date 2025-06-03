@@ -5,6 +5,7 @@ import com.pbl5.autoattendance.model.Class;
 import com.pbl5.autoattendance.model.Lesson;
 import com.pbl5.autoattendance.repository.LessonRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -15,12 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class LessonService {
     private final LessonRepository lessonRepository;
-
-    public LessonService(LessonRepository lessonRepository) {
-        this.lessonRepository = lessonRepository;
-    }
 
     public List<Lesson> getLessonsByClassIdBeforeDate(Integer classId) {
         return lessonRepository.findLessonBeforeDate(classId, LocalDate.now());
@@ -32,6 +30,10 @@ public class LessonService {
     }
 
     public List<Lesson> createLessons(Map<String, LessonTimeRangeDTO> schedule, Class newClass, Integer numberOfWeeks) {
+        return generateLessons(schedule, newClass, numberOfWeeks, true);
+    }
+
+    public List<Lesson> generateLessons(Map<String, LessonTimeRangeDTO> schedule, Class newClass, Integer numberOfWeeks, boolean saveToDb) {
         LocalDate today = LocalDate.now();
         LocalDate startDate = today;
 
@@ -65,8 +67,10 @@ public class LessonService {
                         .lessonDate(lessonDate)
                         .build();
                 
-                // Lưu lesson vào database
-                lessonRepository.save(newLesson);
+                // Lưu lesson vào database nếu saveToDb = true
+                if (saveToDb) {
+                    lessonRepository.save(newLesson);
+                }
                 allLessons.add(newLesson);
             }
         }
