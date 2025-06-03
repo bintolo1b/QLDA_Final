@@ -9,6 +9,7 @@ import com.pbl5.autoattendance.model.User;
 import com.pbl5.autoattendance.repository.AuthorityRepository;
 import com.pbl5.autoattendance.repository.UserRepository;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -121,5 +122,20 @@ public class UserService {
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public boolean checkCurrentPassword(String username, String currentPassword) {
+        User user = getUserByUsername(username);
+        if (user == null) {
+            return false;
+        }
+        return passwordEncoder.matches(currentPassword, user.getPassword());
+    }
+
+    public boolean updatePassword(String username, String newPassword) {
+        User user = getUserByUsername(username);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return true;
     }
 }
