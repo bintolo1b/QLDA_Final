@@ -100,7 +100,7 @@ public class AttendanceCheckAPI {
 
     @GetMapping("/result/{lessionId}")
     public ApiResponse<AttendanceCheckDTO> checkAttendent(@PathVariable int lessionId ){
-        System.out.println("checkAttendent");
+        System.out.println("checkAttendent  code 1000");
         AttendanceCheckDTO result = attendanceCheckService.getAttendanceCheckByLessionid(lessionId);
         return ApiResponse.<AttendanceCheckDTO>builder()
                 .code(1000)
