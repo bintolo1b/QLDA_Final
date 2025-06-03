@@ -8,6 +8,7 @@ import com.pbl5.autoattendance.model.Class;
 import com.pbl5.autoattendance.model.Lesson;
 import com.pbl5.autoattendance.model.Student;
 import com.pbl5.autoattendance.repository.AttendanceCheckRepository;
+import com.pbl5.autoattendance.repository.LessonRepository;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,9 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -26,6 +30,7 @@ public class AttendanceCheckService {
     AttendanceCheckRepository attendanceCheckRepository;
     StudentService studentService;
     IAttendanceCheckMapper attendanceCheckMapper;
+    LessonRepository lessonRepository;
 
 
     public AttendanceCheckDTO getAttendanceCheckByLessionid(int lessionid) {
@@ -40,8 +45,26 @@ public class AttendanceCheckService {
         return attendanceCheckRepository.findById(id).orElse(null);
     }
 
-    public AttendanceCheck saveAttendanceCheck(AttendanceCheck attendanceCheck) {
-        return attendanceCheckRepository.save(attendanceCheck);
+    public void updateExpiredAttendanceChecks() {
+        LocalDateTime now = LocalDateTime.now();
+        List<AttendanceCheck> nullStatusChecks = attendanceCheckRepository.findByStatusIsNull();
+        
+        for (AttendanceCheck check : nullStatusChecks) {
+            Lesson lesson = check.getLesson();
+            LocalDateTime lessonEndTime = LocalDateTime.of(
+                lesson.getLessonDate(),
+                lesson.getEndTime()
+            );
+            
+            if (now.isAfter(lessonEndTime)) {
+                check.setStatus("Absent");
+                attendanceCheckRepository.save(check);
+            }
+        }
+    }
+
+    public void saveAttendanceCheck(AttendanceCheck attendanceCheck) {
+        attendanceCheckRepository.save(attendanceCheck);
     }
 
     public void createAttendanceCheck(Student student, Class aclass) {

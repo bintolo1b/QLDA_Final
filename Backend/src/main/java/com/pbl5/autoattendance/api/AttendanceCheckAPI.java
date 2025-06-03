@@ -81,6 +81,9 @@ public class AttendanceCheckAPI {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         
+        // Cập nhật trạng thái điểm danh cho các buổi học đã kết thúc
+        attendanceCheckService.updateExpiredAttendanceChecks();
+        
         AttendanceCheckId id = new AttendanceCheckId();
         id.setLessonId(lessonId);
         id.setStudentId(studentId);
