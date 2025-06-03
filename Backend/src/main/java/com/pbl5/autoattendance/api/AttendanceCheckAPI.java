@@ -121,22 +121,24 @@ public class AttendanceCheckAPI {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-
         attendanceCheck.setStatus(attendanceCheckDTO.getStatus());
+        if (attendanceCheckDTO.getStatus().equals("Absent")){
+            attendanceCheck.setImgPath("");
+            attendanceCheck.setCheckinDate(null);
+        }
+        else{
+            if (!attendanceCheckDTO.getImgPath().equals(""))
+                attendanceCheck.setImgPath(attendanceCheckDTO.getImgPath());
+            LocalDateTime checkinDate = attendanceCheckDTO.getCheckinDate();
 
-        if (!attendanceCheckDTO.getImgPath().equals(""))
-            attendanceCheck.setImgPath(attendanceCheckDTO.getImgPath());
+            // Chuyển LocalDateTime thành ZonedDateTime (giả sử checkinDate là UTC)
+            ZonedDateTime utcZonedDateTime = checkinDate.atZone(ZoneId.of("UTC"));
 
-        attendanceCheck.setCheckinDate(attendanceCheckDTO.getStatus().equals("Absent")?null:attendanceCheckDTO.getCheckinDate());
-        LocalDateTime checkinDate = attendanceCheckDTO.getCheckinDate();
+            // Chuyển từ UTC sang giờ Việt Nam (UTC+7)
+            ZonedDateTime vietnamZonedDateTime = utcZonedDateTime.withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
 
-        // Chuyển LocalDateTime thành ZonedDateTime (giả sử checkinDate là UTC)
-        ZonedDateTime utcZonedDateTime = checkinDate.atZone(ZoneId.of("UTC"));
-
-        // Chuyển từ UTC sang giờ Việt Nam (UTC+7)
-        ZonedDateTime vietnamZonedDateTime = utcZonedDateTime.withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
-
-        attendanceCheck.setCheckinDate(vietnamZonedDateTime.toLocalDateTime());
+            attendanceCheck.setCheckinDate(vietnamZonedDateTime.toLocalDateTime());
+        }
 
         attendanceCheckService.update(attendanceCheck);
         return new ResponseEntity<>(HttpStatus.OK);

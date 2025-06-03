@@ -24,6 +24,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import GroupsIcon from '@mui/icons-material/Groups';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 import TimerOffIcon from '@mui/icons-material/TimerOff';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 export default function AttendancePage() {
     const location = useLocation();
@@ -252,6 +253,30 @@ export default function AttendancePage() {
         return `${day} ${month} ${year}`;
     };
 
+    const handleExportCSV = () => {
+        // Create CSV content
+        const headers = ['Student Name', 'State', 'Time'];
+        const csvContent = [
+            headers.join(','),
+            ...students.map(student => [
+                student.name,
+                student.attendanceType,
+                student.time
+            ].join(','))
+        ].join('\n');
+
+        // Create blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `attendance_${classData?.name}_${formatDate(lessonData?.lessonDate)}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     if (error) {
         return (
             <Box sx={{ padding: "40px", textAlign: "center" }}>
@@ -281,10 +306,36 @@ export default function AttendancePage() {
     return (
         <Box sx={styles.container}>
             <Box sx={styles.information}>
-                <Typography sx={styles.information__title}>
-                    <CalendarMonthIcon sx={{ fontSize: 35, marginRight: 2, verticalAlign: 'bottom' }}/>
-                    Attendance Management
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                    <Typography sx={styles.information__title}>
+                        <CalendarMonthIcon sx={{ fontSize: 35, marginRight: 2, verticalAlign: 'bottom' }}/>
+                        Attendance Management
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        startIcon={<FileDownloadIcon />}
+                        onClick={handleExportCSV}
+                        sx={{
+                            backgroundColor: '#2563eb',
+                            color: 'white',
+                            '&:hover': {
+                                backgroundColor: '#1d4ed8',
+                            },
+                            padding: '10px 20px',
+                            borderRadius: '12px',
+                            textTransform: 'none',
+                            fontWeight: '600',
+                            boxShadow: '0 4px 6px rgba(37, 99, 235, 0.1)',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 6px 12px rgba(37, 99, 235, 0.2)',
+                            }
+                        }}
+                    >
+                        Export CSV
+                    </Button>
+                </Box>
                 <Box sx={styles.infoGrid}>
                     <Box sx={styles.infoCard}>
                         <SchoolIcon sx={styles.infoCard__icon}/>
