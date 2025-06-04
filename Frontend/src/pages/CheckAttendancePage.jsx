@@ -89,7 +89,7 @@ const CheckAttendancePage = () => {
                             {attendanceResult?.status !== "Absent" && attendanceResult?.status !== null  && (
                                     <CardMedia
                                         component="img"
-                                        image={attendanceResult.imgPath ? `http://localhost:5000/student_images/${attendanceResult.imgPath}` : ''}
+                                        image={attendanceResult.imgPath ? `http://192.168.170.15:5000/student_images/${attendanceResult.imgPath}` : ''}
                                         alt="Recognition Result"
                                         sx={{
                                         width: "50%",

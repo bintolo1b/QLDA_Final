@@ -103,6 +103,41 @@ public class StudentClassAPI {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
+    @DeleteMapping("/quit/{classId}")
+    public ResponseEntity<?> quitClass(@PathVariable Integer classId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Student student = studentService.getStudentByUsername(username);
+        
+        if (student == null) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Student not found");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
+
+        Class aclass = classService.getClassById(classId);
+        if (aclass == null) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Class not found");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
+
+        StudentClass studentClass = studentClassService.findByStudentAndAClass(student, aclass);
+        if (studentClass == null) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Student is not enrolled in this class");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
+
+        
+        // Delete student class record
+        studentClassService.delete(studentClass);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Successfully quit the class");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     public StudentClassDTO convertToStudentClassDTO(StudentClass studentClassEntity){
         StudentClassDTO dto = new StudentClassDTO();
         dto.setClass_id(studentClassEntity.getId().getClassId());

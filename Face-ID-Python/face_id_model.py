@@ -14,6 +14,7 @@ class FaceIDModel:
             pretrained="vggface2"
         ).eval()
         self.classifier_model: nn.Module = create_model(num_classes=2)
+        # Load model on CPU
         self.classifier_model.load_state_dict(torch.load("model/real_fake_model_v1.pth", map_location=torch.device('cpu')))
         self.classifier_model.eval()
 

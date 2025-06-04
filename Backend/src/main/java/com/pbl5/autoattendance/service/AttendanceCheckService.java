@@ -93,4 +93,5 @@ public class AttendanceCheckService {
     public AttendanceCheck findById(AttendanceCheckId id) {
         return attendanceCheckRepository.findById(id).orElse(null);
     }
+
 }

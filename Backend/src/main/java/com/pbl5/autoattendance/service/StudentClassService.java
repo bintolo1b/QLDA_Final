@@ -78,4 +78,8 @@ public class StudentClassService {
     public StudentClass findByStudentAndAClass(Student student, Class aclass) {
         return studentClassRepository.findByStudentAndAClass(student, aclass);
     }
+
+    public void delete(StudentClass studentClass) {
+        studentClassRepository.delete(studentClass);
+    }
 }

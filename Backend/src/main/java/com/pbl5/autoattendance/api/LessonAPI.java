@@ -7,6 +7,7 @@ import com.pbl5.autoattendance.service.LessonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.DayOfWeek;
@@ -57,6 +58,24 @@ public class LessonAPI {
         return ResponseEntity.ok(scheduleDTOS);
     }
     
+    @PostMapping
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<LessonDTO> createLesson(@RequestBody LessonDTO lessonDTO) {
+        Lesson lesson = lessonService.createSingleLesson(lessonDTO);
+        return ResponseEntity.ok(convertToDTO(lesson));
+    }
+
+    @DeleteMapping("/{lessonId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<?> deleteLesson(@PathVariable Integer lessonId) {
+        try {
+            lessonService.deleteLesson(lessonId);
+            return ResponseEntity.ok().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     private LessonDTO convertToDTO(Lesson lesson) {
         LessonDTO dto = new LessonDTO();
         dto.setId(lesson.getId());

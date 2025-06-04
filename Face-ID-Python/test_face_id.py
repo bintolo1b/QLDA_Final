@@ -30,7 +30,7 @@ while True:
         files = {'image': ('image.jpg', img_encoded.tobytes(), 'image/jpeg')}
 
         response = requests.post(
-            "http://localhost:5000/api/identity_student",
+            "http://192.168.170.15:5000/api/identity_student",
             files=files
         )
 

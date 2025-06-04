@@ -29,7 +29,7 @@ export default function AccountMenu() {
           withCredentials: true
         });
         // Không cần kiểm tra response.ok và gọi json() vì axios tự xử lý
-        setAvatarPath(`https://localhost:7070${response.data.Path}`);
+        setAvatarPath(`https://192.168.170.15:7070${response.data.Path}`);
       } catch (error) {
         console.error('Error fetching avatar:', error);
       }

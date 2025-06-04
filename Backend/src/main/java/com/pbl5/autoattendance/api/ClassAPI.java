@@ -232,6 +232,34 @@ public class ClassAPI {
         return new ResponseEntity<>(convertToDTO(aclass), HttpStatus.OK );
     }
 
+    @PatchMapping("/rename/{classId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<?> renameClass(@PathVariable Integer classId, @RequestBody Map<String, String> request) {
+        String newName = request.get("newName");
+        if (newName == null || newName.trim().isEmpty()) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "New name cannot be empty");
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Class aclass = classService.getClassById(classId);
+
+        if (aclass == null) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Class not found");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
+
+        if (!username.equals(aclass.getTeacher().getUser().getUsername())) {
+            return new ResponseEntity<>("You are not the teacher of this class", HttpStatus.FORBIDDEN);
+        }
+
+        aclass.setName(newName.trim());
+        classService.saveClass(aclass);
+        return new ResponseEntity<>(convertToDTO(aclass), HttpStatus.OK);
+    }
+
     @GetMapping("/checkHiddenToTeacher/{classId}")
     public ResponseEntity<?> checkClassHiddenStatus(@PathVariable Integer classId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();

@@ -44,7 +44,7 @@ function FindGroupButton() {
     setClassInfo(null);
     
     try {
-      const response = await fetch(`https://localhost:7070/api/classes/${classId}`, {
+      const response = await fetch(`https://192.168.170.15:7070/api/classes/${classId}`, {
         credentials: 'include'
       });
       
@@ -69,7 +69,7 @@ function FindGroupButton() {
     setError(null);
     
     try {
-      const response = await fetch(`https://localhost:7070/api/student-class/join/${classInfo.id}`, {
+      const response = await fetch(`https://192.168.170.15:7070/api/student-class/join/${classInfo.id}`, {
         method: 'POST',
         credentials: 'include',
         headers: {

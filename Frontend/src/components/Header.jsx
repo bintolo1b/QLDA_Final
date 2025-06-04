@@ -40,7 +40,7 @@ function Header() {
       setLoading(true);
       setError(null);
       
-      const endpoint = `https://localhost:7070/api/classes/search?searchString=${encodeURIComponent(searchString)}`;
+      const endpoint = `https://192.168.170.15:7070/api/classes/search?searchString=${encodeURIComponent(searchString)}`;
       
       const response = await fetch(endpoint, {
         credentials: 'include',

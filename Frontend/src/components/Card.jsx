@@ -11,14 +11,47 @@ import SquareFootIcon from '@mui/icons-material/SquareFoot';
 import IconButton from '@mui/material/IconButton';
 import { useNavigate } from "react-router-dom"
 import api from "../api/axios";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemText from '@mui/material/ListItemText';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
 
 function Card({groupTeamName, classId, onHideStatusChange, initialHidden = false}) {
     const navigate = useNavigate();
     const [isHidden, setIsHidden] = useState(initialHidden);
+    const [openRenameDialog, setOpenRenameDialog] = useState(false);
+    const [openQuitDialog, setOpenQuitDialog] = useState(false);
+    const [openStudentListDialog, setOpenStudentListDialog] = useState(false);
+    const [newClassName, setNewClassName] = useState(groupTeamName);
+    const [isTeacher, setIsTeacher] = useState(false);
+    const [isStudent, setIsStudent] = useState(false);
+    const [students, setStudents] = useState([]);
 
     useEffect(() => {
         setIsHidden(initialHidden);
+        const roles = localStorage.getItem('roles');
+        setIsTeacher(roles && roles.includes('ROLE_TEACHER'));
+        setIsStudent(roles && roles.includes('ROLE_STUDENT'));
     }, [initialHidden]);
+
+    const fetchStudents = async () => {
+        try {
+            const response = await api.get(`/api/classes/${classId}/students`, {
+                withCredentials: true
+            });
+            setStudents(response.data);
+        } catch (error) {
+            console.error('Error fetching students:', error);
+        }
+    };
 
     const handleHideUnhide = async (e) => {
         e.stopPropagation();
@@ -48,6 +81,37 @@ function Card({groupTeamName, classId, onHideStatusChange, initialHidden = false
         }
     };
 
+    const handleRename = async () => {
+        try {
+            await api.patch(`/api/classes/rename/${classId}`, 
+                { newName: newClassName },
+                { withCredentials: true }
+            );
+            setOpenRenameDialog(false);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error renaming class:', error);
+        }
+    };
+
+    const handleQuit = async () => {
+        try {
+            await api.delete(`/api/student-class/quit/${classId}`, {
+                withCredentials: true
+            });
+            setOpenQuitDialog(false);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error quitting class:', error);
+        }
+    };
+
+    const handleOpenStudentList = async (e) => {
+        e.stopPropagation();
+        await fetchStudents();
+        setOpenStudentListDialog(true);
+    };
+
     const menuItemsList = [
         {
             title: "Information",
@@ -60,7 +124,33 @@ function Card({groupTeamName, classId, onHideStatusChange, initialHidden = false
             title: isHidden ? "Unhide" : "Hide",
             onClick: handleHideUnhide
         },
-    ]
+        {
+            title: "View Students",
+            onClick: handleOpenStudentList
+        }
+    ];
+
+    // Add rename option only for teachers
+    if (isTeacher) {
+        menuItemsList.push({
+            title: "Rename",
+            onClick: (e) => {
+                e.stopPropagation();
+                setOpenRenameDialog(true);
+            }
+        });
+    }
+
+    // Add quit option only for students
+    if (isStudent) {
+        menuItemsList.push({
+            title: "Quit Class",
+            onClick: (e) => {
+                e.stopPropagation();
+                setOpenQuitDialog(true);
+            }
+        });
+    }
 
     // Tạo avatar props an toàn, kiểm tra nếu groupTeamName không tồn tại
     const avatarData = stringAvatar(groupTeamName);
@@ -174,6 +264,91 @@ function Card({groupTeamName, classId, onHideStatusChange, initialHidden = false
                     </Tooltip>
                 </Box>
             </Box>
+
+            {/* Rename Dialog */}
+            <Dialog open={openRenameDialog} onClose={() => setOpenRenameDialog(false)}>
+                <DialogTitle>Rename Class</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="New Class Name"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        value={newClassName}
+                        onChange={(e) => setNewClassName(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenRenameDialog(false)}>Cancel</Button>
+                    <Button onClick={handleRename} variant="contained" color="primary">
+                        Rename
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Quit Dialog */}
+            <Dialog open={openQuitDialog} onClose={() => setOpenQuitDialog(false)}>
+                <DialogTitle>Quit Class</DialogTitle>
+                <DialogContent>
+                    <p>Are you sure you want to quit this class? This action cannot be undone.</p>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenQuitDialog(false)}>Cancel</Button>
+                    <Button onClick={handleQuit} variant="contained" color="error">
+                        Quit Class
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Student List Dialog */}
+            <Dialog 
+                open={openStudentListDialog} 
+                onClose={() => setOpenStudentListDialog(false)}
+                maxWidth="md"
+                fullWidth
+            >
+                <DialogTitle>Student List</DialogTitle>
+                <DialogContent>
+                    <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+                        {students.map((student, index) => (
+                            <div key={student.id}>
+                                <ListItem alignItems="flex-start">
+                                    <ListItemAvatar>
+                                        <Avatar 
+                                            src={`${api.defaults.baseURL}/avatars/${student.username}.jpg`}
+                                            alt={student.name}
+                                        />
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        primary={student.name}
+                                        secondary={
+                                            <>
+                                                <Typography
+                                                    component="span"
+                                                    variant="body2"
+                                                    color="text.primary"
+                                                >
+                                                    {student.username}
+                                                </Typography>
+                                                <br />
+                                                {student.email}
+                                                <br />
+                                                {student.phone}
+                                            </>
+                                        }
+                                    />
+                                </ListItem>
+                                {index < students.length - 1 && <Divider variant="inset" component="li" />}
+                            </div>
+                        ))}
+                    </List>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenStudentListDialog(false)}>Close</Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }

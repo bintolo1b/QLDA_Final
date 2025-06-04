@@ -42,7 +42,7 @@ public class Lesson {
     @Column
     private String notes; // Ghi chú cho buổi học
 
-    @OneToMany(mappedBy = "lesson")
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.REMOVE)
     private List<AttendanceCheck> attendanceChecks;
 
 }

@@ -95,7 +95,7 @@ export default function AttendancePage() {
     };
 
     const handleImageClick = (imagePath) => {
-        const originalPath = "http://localhost:5000/student_images/"
+        const originalPath = "http://192.168.170.15:5000/student_images/"
         setSelectedImage(originalPath + imagePath);
         setOpenImageDialog(true);
     };
@@ -318,9 +318,7 @@ export default function AttendancePage() {
                         sx={{
                             backgroundColor: '#2563eb',
                             color: 'white',
-                            '&:hover': {
-                                backgroundColor: '#1d4ed8',
-                            },
+                            
                             padding: '10px 20px',
                             borderRadius: '12px',
                             textTransform: 'none',
@@ -330,6 +328,7 @@ export default function AttendancePage() {
                             '&:hover': {
                                 transform: 'translateY(-2px)',
                                 boxShadow: '0 6px 12px rgba(37, 99, 235, 0.2)',
+                                backgroundColor: '#1d4ed8',
                             }
                         }}
                     >
