@@ -3,8 +3,6 @@ from ultralytics import YOLO
 from facenet_pytorch import InceptionResnetV1
 import numpy as np
 import torch.nn as nn
-from real_fake_dataset.facenet import create_model
-import torch
 
 class FaceIDModel:
     def __init__(self, detector_path: str, identity_folder: str = "identity") -> None:
@@ -13,10 +11,6 @@ class FaceIDModel:
         self.extractor_model: nn.Module = InceptionResnetV1(
             pretrained="vggface2"
         ).eval()
-        self.classifier_model: nn.Module = create_model(num_classes=2)
-        # Load model on CPU
-        self.classifier_model.load_state_dict(torch.load("model/real_fake_model_v1.pth", map_location=torch.device('cpu')))
-        self.classifier_model.eval()
 
         self.identity_embedding: dict[str, list[np.ndarray]] = (
             extract_identity_embedding(self.extractor_model, identity_folder)
@@ -26,7 +20,7 @@ class FaceIDModel:
         faces: np.ndarray = detect_faces(frame, self.detector_model)
         phones: np.ndarray = detect_phone(frame, self.phone_detector_model)
         identified_faces: list[tuple[str, np.ndarray, float]] = identify_faces(
-            faces, phones, self.identity_embedding, frame, self.extractor_model, self.classifier_model
+            faces, phones, self.identity_embedding, frame, self.extractor_model
         )
 
         return identified_faces

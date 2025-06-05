@@ -17,5 +17,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Integer> {
 
     List<Lesson> findByaClass_Id(Integer aClassId);
 
+    @Query("SELECT l FROM Lesson l JOIN l.attendanceChecks ac WHERE ac.student.id = :studentId")
+    List<Lesson> findLessonsByStudentId(Integer studentId);
+
     List<Lesson> findByaClass(Class aClass);
 }

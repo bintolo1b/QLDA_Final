@@ -129,9 +129,24 @@ function CalendarPage() {
         notes: ''
       });
       setDateTimeError('');
+
+      Swal.fire({
+        title: 'Thành công!',
+        text: 'Đã thêm buổi học mới',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6'
+      });
     } catch (error) {
       console.error('Error creating lesson:', error);
-      setError(error.response?.data?.message || 'Error creating lesson');
+      setOpenAddDialog(false);
+      Swal.fire({
+        title: 'Lỗi!',
+        text: error.response?.data?.message || 'Không thể tạo buổi học',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6'
+      });
     }
   };
 

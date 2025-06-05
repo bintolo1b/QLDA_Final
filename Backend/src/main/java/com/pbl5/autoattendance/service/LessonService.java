@@ -92,8 +92,31 @@ public class LessonService {
         return lessonRepository.findByaClass_Id(classId);
     }
 
+    private boolean hasScheduleConflict(Lesson newLesson, Class aClass) {
+        // Lấy tất cả học sinh trong lớp
+        List<StudentClass> studentClasses = aClass.getStudentClasses();
+        
+        for (StudentClass studentClass : studentClasses) {
+            Student student = studentClass.getStudent();
+            // Lấy tất cả các lesson của học sinh này
+            List<Lesson> studentLessons = lessonRepository.findLessonsByStudentId(student.getId());
+            
+            for (Lesson existingLesson : studentLessons) {
+                // Kiểm tra nếu cùng ngày
+                if (existingLesson.getLessonDate().equals(newLesson.getLessonDate())) {
+                    // Kiểm tra xem có thời gian chồng chéo không
+                    if (!(newLesson.getEndTime().isBefore(existingLesson.getStartTime()) || 
+                          newLesson.getStartTime().isAfter(existingLesson.getEndTime()))) {
+                        return true; // Có xung đột
+                    }
+                }
+            }
+        }
+        return false; // Không có xung đột
+    }
+
     @Transactional
-    public Lesson createSingleLesson(LessonDTO lessonDTO) {
+    public Map<String, Object> createSingleLesson(LessonDTO lessonDTO) {
         Class aClass = classRepository.findById(lessonDTO.getClass_id())
             .orElseThrow(() -> new EntityNotFoundException("Class not found"));
 
@@ -107,6 +130,14 @@ public class LessonService {
             .notes(lessonDTO.getNotes())
             .attendanceChecks(new java.util.ArrayList<>())
             .build();
+
+        // Kiểm tra xung đột lịch học với tất cả học sinh trong lớp
+        if (hasScheduleConflict(lesson, aClass)) {
+            return Map.of(
+                "success", false,
+                "message", "Không thể tạo buổi học mới vì một hoặc nhiều học sinh trong lớp đã có lịch học trùng thời gian"
+            );
+        }
 
         lesson = lessonRepository.save(lesson);
 
@@ -127,7 +158,11 @@ public class LessonService {
             lesson.getAttendanceChecks().add(attendanceCheck);
         }
 
-        return lessonRepository.save(lesson);
+        lesson = lessonRepository.save(lesson);
+        return Map.of(
+            "success", true,
+            "data", lesson
+        );
     }
 
     @Transactional

@@ -115,51 +115,13 @@ def nearest_face(
 
     return min_label, min_distance
 
-def predict_real_fake(
-    face_image: np.ndarray, classifier_model: torch.nn.Module, device: torch.device
-):
-    # Convert BGR to RGB for PIL (if face_image is in BGR)
-    # face_image_rgb = cv2.cvtColor(face_image, cv2.COLOR_BGR2RGB)
-    
-    # Now create PIL image from RGB array
-    image = Image.fromarray(face_image)
-
-    # transform = transforms.Compose(
-    #     [
-    #         transforms.Resize(400),  # Resize to a larger size first (zoom in)
-    #         transforms.CenterCrop(299),  # Then crop the center to 299x299
-    #         transforms.ToTensor(),
-    #         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    #     ]
-    # )
-    transform = transforms.Compose(
-        [
-            transforms.Resize(299),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
-    )
-
-    input_tensor = transform(image).unsqueeze(0)
-    input_tensor = input_tensor.to(device)
-
-    classifier_model.eval()
-    classifier_model.to(device)
-    with torch.no_grad():
-        outputs = classifier_model(input_tensor)
-        probabilities = torch.softmax(outputs, dim=1)
-        predicted_class = torch.argmax(probabilities, dim=1).item()
-
-    return predicted_class, probabilities.cpu().numpy()
 def identify_faces(
     faces: np.ndarray,
     phones: np.ndarray,
     identity_embedding: dict[str, list[np.ndarray]],
     image: np.ndarray,
-    extractor_model: nn.Module,
-    real_fake_model: nn.Module,
-    device: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-) -> list[tuple[str, np.ndarray, float, int, np.ndarray]]:
+    extractor_model: nn.Module
+) -> list[tuple[str, np.ndarray, float]]:
     identified_faces = []
 
     for face in faces:
@@ -179,13 +141,11 @@ def identify_faces(
         face_embedding = extract_face_embedding(face_image, extractor_model)
         label, distance = nearest_face(face_embedding, identity_embedding)
         
-        # If face is inside phone or model predicts fake, mark as fake
-        real_fake_class, real_fake_probs = predict_real_fake(face_image, real_fake_model, device)
-        if is_inside_phone or real_fake_class == 1:
+        # If face is inside phone, mark as fake
+        if is_inside_phone:
             label = "Fake"
-            real_fake_class = 1
         
-        identified_faces.append((label, face, distance, real_fake_class, real_fake_probs[0]))
+        identified_faces.append((label, face, distance))
 
     return identified_faces
 

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Box, Button, Typography, Grid, Paper, IconButton, Alert } from '@mui/material';
-import { CameraAlt, Delete, Check } from '@mui/icons-material';
+import { CameraAlt, Delete, Check, Upload } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 function FaceRegistrationPage() {
@@ -9,6 +9,7 @@ function FaceRegistrationPage() {
     const [cameraError, setCameraError] = useState("");
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
+    const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -68,6 +69,17 @@ function FaceRegistrationPage() {
         }
     };
 
+    const handleFileUpload = (event) => {
+        const files = Array.from(event.target.files);
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setImages(prevImages => [...prevImages, e.target.result]);
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
     const removeImage = (index) => {
         const newImages = images.filter((_, i) => i !== index);
         setImages(newImages);
@@ -94,7 +106,7 @@ function FaceRegistrationPage() {
             console.log("Đang gửi yêu cầu đăng ký khuôn mặt với username:", username);
             console.log("Hình ảnh đang gửi:", images);
 
-            const faceResponse = await fetch('http://192.168.170.15:5000/api/face/register', {
+            const faceResponse = await fetch('http://localhost:5000/api/face/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -137,14 +149,39 @@ function FaceRegistrationPage() {
                     <Grid item xs={12} md={6}>
                         <Box sx={{ position: 'relative', width: '100%', height: 300, bgcolor: 'grey.200', overflow: 'hidden' }}>
                             {!isCapturing ? (
-                                <Button
-                                    variant="contained"
-                                    startIcon={<CameraAlt />}
-                                    onClick={startCamera}
-                                    sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
-                                >
-                                    Bật Camera
-                                </Button>
+                                <Box sx={{ 
+                                    position: 'absolute', 
+                                    top: '50%', 
+                                    left: '50%', 
+                                    transform: 'translate(-50%, -50%)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                    alignItems: 'center'
+                                }}>
+                                    <Button
+                                        variant="contained"
+                                        startIcon={<CameraAlt />}
+                                        onClick={startCamera}
+                                    >
+                                        Bật Camera
+                                    </Button>
+                                    <input
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        style={{ display: 'none' }}
+                                        ref={fileInputRef}
+                                        onChange={handleFileUpload}
+                                    />
+                                    <Button
+                                        variant="contained"
+                                        startIcon={<Upload />}
+                                        onClick={() => fileInputRef.current.click()}
+                                    >
+                                        Tải ảnh lên
+                                    </Button>
+                                </Box>
                             ) : (
                                 <>
                                     <video

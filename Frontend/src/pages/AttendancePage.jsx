@@ -95,7 +95,7 @@ export default function AttendancePage() {
     };
 
     const handleImageClick = (imagePath) => {
-        const originalPath = "http://192.168.170.15:5000/student_images/"
+        const originalPath = "http://localhost:5000/student_images/"
         setSelectedImage(originalPath + imagePath);
         setOpenImageDialog(true);
     };

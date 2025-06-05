@@ -19,7 +19,7 @@ app = Flask(__name__)
 # CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 # CORS(app)
 CORS(app, resources={r"/api/*": {
-    "origins": "http://192.168.170.15:5173",  # Thay đổi theo origin của React app
+    "origins": "http://localhost:5173",  # Thay đổi theo origin của React app
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     "allow_headers": ["Content-Type", "Authorization"],
     "supports_credentials": True
@@ -87,7 +87,7 @@ def identity_student():
         if not identified_faces:
             return {"message": "No face detected in image", "status": "error"}
 
-        for label, face, dist, _, _ in identified_faces:
+        for label, face, dist in identified_faces:
             x1, y1, x2, y2 = map(int, face)
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
 
@@ -147,7 +147,7 @@ def identity_student():
         # post data to localhost:7070/api/attendance/check
         try:
             response = requests.post(
-                "https://192.168.170.15:7070/api/attendance/check",
+                "https://localhost:7070/api/attendance/check",
                 json={"lessonId": lessonId, "studentId": studentId, "image": image_name},
                 verify=False
             )
@@ -232,7 +232,7 @@ def register_face():
             array_vector.append(extract_face_embedding(img, my_model.extractor_model).tolist())
 
     response = requests.post(
-        "https://192.168.170.15:7070/api/student-vectors",
+        "https://localhost:7070/api/student-vectors",
         json={
             "username": username,
             "featureVector": array_vector,

@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -60,9 +61,14 @@ public class LessonAPI {
     
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<LessonDTO> createLesson(@RequestBody LessonDTO lessonDTO) {
-        Lesson lesson = lessonService.createSingleLesson(lessonDTO);
-        return ResponseEntity.ok(convertToDTO(lesson));
+    public ResponseEntity<?> createLesson(@RequestBody LessonDTO lessonDTO) {
+        System.out.println("cr");
+        Map<String, Object> result = lessonService.createSingleLesson(lessonDTO);
+        if ((Boolean) result.get("success")) {
+            return ResponseEntity.ok(convertToDTO((Lesson) result.get("data")));
+        } else {
+            return ResponseEntity.badRequest().body(result);
+        }
     }
 
     @DeleteMapping("/{lessonId}")

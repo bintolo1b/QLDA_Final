@@ -30,7 +30,7 @@ while True:
         files = {'image': ('image.jpg', img_encoded.tobytes(), 'image/jpeg')}
 
         response = requests.post(
-            "http://192.168.170.15:5000/api/identity_student",
+            "http://localhost:5000/api/identity_student",
             files=files
         )
 
@@ -38,21 +38,21 @@ while True:
         
     identified_faces = my_model.query(frame)
 
-    for student_id, face, distance, _, _ in identified_faces:
+    for student_id, face, distance in identified_faces:
         x1, y1, x2, y2 = face
         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
 
         # Get student info from database
         student = ServerUtils.get_student_by_id(student_id)
-        print(student_id)
+        print("trung ga: ", student_id, "bbb")
         display_name = "Unknown"
         
         if student:
             display_name = student["name"]
-        elif student_id == "Fake":
-            display_name = "Fake"
-        elif distance > 0.25:
+        if distance > 0.25:
             display_name = "Unknown"
+        if student_id == "Fake":
+            display_name = "Fake"
 
         # Draw rectangle and text
         cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
